@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Forge",
-  description: "Teach once. Delegate forever.",
+  description: "AI that learns repetitive spreadsheet workflows.",
 };
 
 export default function RootLayout({
