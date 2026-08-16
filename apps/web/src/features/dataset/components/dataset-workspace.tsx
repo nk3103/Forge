@@ -5,8 +5,19 @@ import { useCallback, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 
 import { CommandBar } from "@/features/commands/command-bar";
-import { createDatasetSignature } from "@/features/knowledge/dataset-signature";
-import { rememberWorkflow } from "@/features/knowledge/workflow-knowledge";
+
+import {
+  createDatasetSignature,
+} from "@/features/knowledge/dataset-signature";
+
+import {
+  rememberWorkflow,
+  type LearnedWorkflow,
+} from "@/features/knowledge/workflow-knowledge";
+
+import { suggestWorkflow } from "@/features/knowledge/workflow-suggestions";
+import { WorkflowSuggestion } from "@/features/knowledge/workflow-suggestion";
+
 import { WorkflowTimeline } from "@/features/operations/workflow-timeline";
 import { applyOperations } from "@/features/operations/apply-operations";
 import type { Operation } from "@/features/operations/operation-types";
@@ -26,6 +37,9 @@ export function DatasetWorkspace() {
 
   const [workflowSaved, setWorkflowSaved] =
     useState(false);
+
+  const [suggestedWorkflow, setSuggestedWorkflow] =
+    useState<LearnedWorkflow | null>(null);
 
   const dataset = useMemo(() => {
     if (!originalDataset) {
@@ -66,23 +80,60 @@ export function DatasetWorkspace() {
   const handleDatasetLoaded = useCallback(
     (dataset: Dataset) => {
       setOriginalDataset(dataset);
+
       setOperations([]);
+
       setWorkflowSaved(false);
+
+      const workflow =
+        suggestWorkflow(dataset);
+
+      setSuggestedWorkflow(
+        workflow ?? null,
+      );
     },
     [],
   );
+
+  const handleApplyWorkflow =
+    useCallback(() => {
+      if (!suggestedWorkflow) return;
+
+      const now = Date.now();
+
+const replayedOperations =
+  suggestedWorkflow.operations.map(
+    (operation, index) => ({
+      ...operation,
+      id: crypto.randomUUID(),
+      timestamp: now + index,
+    }),
+  );
+
+      setOperations(replayedOperations);
+
+      setSuggestedWorkflow(null);
+    }, [suggestedWorkflow]);
+
+  const handleDismissSuggestion =
+    useCallback(() => {
+      setSuggestedWorkflow(null);
+    }, []);
 
   if (!dataset) {
     return (
       <section className="rounded-2xl border border-dashed border-border/60 p-12">
         <div className="flex flex-col items-center gap-6">
           <DatasetUpload
-            onDatasetLoaded={handleDatasetLoaded}
+            onDatasetLoaded={
+              handleDatasetLoaded
+            }
           />
 
           <p className="max-w-md text-center text-sm text-muted-foreground">
-            Upload your first spreadsheet to teach Forge how
-            you clean, transform and organize data.
+            Upload your first spreadsheet to
+            teach Forge how you clean,
+            transform and organize data.
           </p>
         </div>
       </section>
@@ -91,7 +142,24 @@ export function DatasetWorkspace() {
 
   return (
     <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
-      <DatasetHeader dataset={dataset} />
+     <div className="flex items-start justify-between">
+  <DatasetHeader dataset={dataset} />
+
+  <DatasetUpload
+    compact
+    onDatasetLoaded={handleDatasetLoaded}
+  />
+</div>
+
+      {suggestedWorkflow && (
+        <WorkflowSuggestion
+          workflow={suggestedWorkflow}
+          onApply={handleApplyWorkflow}
+          onDismiss={
+            handleDismissSuggestion
+          }
+        />
+      )}
 
       <DataTable dataset={dataset} />
 
