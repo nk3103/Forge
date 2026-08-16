@@ -1,8 +1,9 @@
 "use client";
 
+import { formatDistanceToNow } from "date-fns";
+
 import { describeOperation } from "./describe-operation";
 import type { Operation } from "./operation-types";
-import { formatDistanceToNow } from "date-fns";
 
 interface WorkflowTimelineProps {
   operations: Operation[];
@@ -27,11 +28,11 @@ export function WorkflowTimeline({
         <div className="rounded-lg border border-dashed p-6 text-center">
           <p className="text-sm text-muted-foreground">
             Teach Forge your first transformation.
-Every step you perform becomes part of a reusable workflow.
+            Every step becomes part of a reusable workflow.
           </p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-5">
           {operations.map((operation) => {
             const description =
               describeOperation(operation);
@@ -39,11 +40,11 @@ Every step you perform becomes part of a reusable workflow.
             return (
               <div
                 key={operation.id}
-                className="flex gap-3"
+                className="flex gap-4"
               >
-                <div className="mt-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
-    <div className="h-2 w-2 rounded-full bg-primary" />
-</div>
+                <div className="mt-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary/10">
+                  <div className="h-2 w-2 rounded-full bg-primary" />
+                </div>
 
                 <div className="flex-1">
                   <p className="font-medium">
@@ -55,9 +56,12 @@ Every step you perform becomes part of a reusable workflow.
                   </p>
 
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {formatDistanceToNow(operation.timestamp, {
-  addSuffix: true,
-})}
+                    {formatDistanceToNow(
+                      operation.timestamp,
+                      {
+                        addSuffix: true,
+                      },
+                    )}
                   </p>
                 </div>
               </div>
