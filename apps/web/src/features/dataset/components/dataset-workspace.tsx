@@ -1,15 +1,16 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 
 import type { Dataset } from "../types";
-
-
 
 import { DatasetUpload } from "./dataset-upload";
 import { DatasetHeader } from "./dataset-header";
 import { DataTable } from "./data-table";
 
+import { CommandBar } from "@/features/commands/command-bar";
+
+import { WorkflowTimeline } from "@/features/operations/workflow-timeline";
 import { applyOperations } from "@/features/operations/apply-operations";
 import type { Operation } from "@/features/operations/operation-types";
 
@@ -17,16 +18,22 @@ export function DatasetWorkspace() {
   const [originalDataset, setOriginalDataset] =
     useState<Dataset | null>(null);
 
-  const [operations] = useState<Operation[]>([]);
+  const [operations, setOperations] = useState<Operation[]>([]);
 
   const dataset = useMemo(() => {
-    if (!originalDataset) return null;
+    if (!originalDataset) {
+      return null;
+    }
 
-    return applyOperations(
-      originalDataset,
-      operations,
-    );
+    return applyOperations(originalDataset, operations);
   }, [originalDataset, operations]);
+
+  const handleOperation = useCallback(
+    (operation: Operation) => {
+      setOperations((current) => [...current, operation]);
+    },
+    [],
+  );
 
   if (!dataset) {
     return (
@@ -45,13 +52,20 @@ export function DatasetWorkspace() {
     );
   }
 
-  return (
-    <section className="space-y-6 rounded-2xl border bg-background p-6 shadow-sm">
-      <DatasetHeader dataset={dataset} />
+ return (
+  <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
+    <DatasetHeader dataset={dataset} />
 
-      <DataTable dataset={dataset} />
+    <DataTable dataset={dataset} />
 
-      {/* Operation Log */}
-    </section>
-  );
+    <WorkflowTimeline
+      operations={operations}
+    />
+
+    <CommandBar
+      dataset={dataset}
+      onOperation={handleOperation}
+    />
+  </section>
+);
 }
