@@ -1,7 +1,9 @@
 "use client";
 
-import { describeOperation } from "@/features/operations/describe-operation";
 import type { Operation } from "@/features/operations/operation-types";
+
+import { RenameOperationCard } from "./operation-cards/rename-operation-card";
+import { TrimWhitespaceOperationCard } from "./operation-cards/trim-whitespace-operation-card";
 
 interface OperationCardProps {
   operation: Operation;
@@ -12,22 +14,21 @@ export function OperationCard({
   operation,
   explanation,
 }: OperationCardProps) {
-  const description =
-    describeOperation(operation);
+  switch (operation.type) {
+    case "rename_column":
+      return (
+        <RenameOperationCard
+          operation={operation}
+          explanation={explanation}
+        />
+      );
 
-  return (
-    <div className="rounded-lg border bg-background p-4">
-      <div className="font-medium">
-        {description.title}
-      </div>
-
-      <div className="text-sm text-muted-foreground">
-        {description.description}
-      </div>
-
-      <div className="mt-2 text-sm">
-        {explanation}
-      </div>
-    </div>
-  );
+    case "trim_whitespace":
+      return (
+        <TrimWhitespaceOperationCard
+          operation={operation}
+          explanation={explanation}
+        />
+      );
+  }
 }
