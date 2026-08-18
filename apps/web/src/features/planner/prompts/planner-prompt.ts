@@ -1,48 +1,58 @@
 import type { PlannerRequest } from "../planner-api";
+import { plannerCatalog } from "../planner-catalog";
+
+function buildOperationsSection(): string {
+  return plannerCatalog
+    .map((operation) => {
+      const parameters = Object.entries(operation.parameters)
+        .map(
+          ([name, description]) =>
+            `  - ${name}: ${description}`,
+        )
+        .join("\n");
+
+      return `
+Operation: ${operation.type}
+
+Description:
+${operation.description}
+
+Parameters:
+${parameters}
+`;
+    })
+    .join("\n");
+}
 
 export function buildPlannerPrompt(
   request: PlannerRequest,
 ): string {
+  const operations = buildOperationsSection();
+
   return `
 You are Forge, an AI spreadsheet transformation planner.
 
-Your job is NOT to modify spreadsheets.
-
 Your ONLY responsibility is to generate transformation plans.
 
-----------------------------
+Do not explain how to perform the transformation.
+Do not describe spreadsheet software.
+Only produce a valid transformation plan.
+
+========================================
 AVAILABLE OPERATIONS
-----------------------------
+========================================
 
-1. rename_column
+${operations}
 
-Arguments:
-
-{
-  "type": "rename_column",
-  "payload": {
-    "from": "<existing column>",
-    "to": "<new column>"
-  }
-}
-
-Rules:
-
-- "from" MUST exactly match one of the available columns.
-- Never invent column names.
-- Never create new operations.
-- Use the minimum number of operations.
-- If the request cannot be satisfied, return an empty plan.
-
-----------------------------
+========================================
 AVAILABLE COLUMNS
-----------------------------
+========================================
 
 ${request.columns.join(", ")}
 
-----------------------------
+========================================
 SAMPLE DATA
-----------------------------
+========================================
 
 ${JSON.stringify(
   request.sampleRows,
@@ -50,12 +60,23 @@ ${JSON.stringify(
   2,
 )}
 
-----------------------------
+========================================
 USER REQUEST
-----------------------------
+========================================
 
 ${request.prompt}
 
-Think carefully before answering.
+========================================
+RULES
+========================================
+
+- Only use the operations listed above.
+- Never invent a new operation.
+- Only reference columns that exist.
+- "from" must exactly match one of the available columns.
+- Use the minimum number of operations required.
+- If no transformation is required, return an empty plan.
+- Do not rename a column to its current name.
+- Think step by step before producing the final plan.
 `;
 }
