@@ -1,36 +1,68 @@
 import type { Dataset } from "../types";
-import type { DatasetDiff } from "./dataset-diff";
+import type {
+  CellUpdateChange,
+  DatasetDiff,
+  RenameColumnChange,
+} from "./dataset-diff";
 
 export function createDatasetDiff(
   before: Dataset,
   after: Dataset,
 ): DatasetDiff {
-  const changes: DatasetDiff["changes"] = [];
-
-  let renamedColumns = 0;
+  const renamedColumns: RenameColumnChange[] = [];
+  const modifiedCells: CellUpdateChange[] = [];
 
   before.columns.forEach((column, index) => {
-    if (column !== after.columns[index]) {
-      renamedColumns++;
+    const nextColumn = after.columns[index];
 
-      changes.push({
+    if (column !== nextColumn) {
+      renamedColumns.push({
         type: "rename_column",
-
-        before: column,
-
-        after: after.columns[index],
-
-        column: after.columns[index],
+        from: column,
+        to: nextColumn,
       });
     }
   });
 
+  before.rows.forEach((beforeRow, rowIndex) => {
+    const afterRow = after.rows[rowIndex];
+
+    if (!afterRow) {
+      return;
+    }
+
+    before.columns.forEach((beforeColumn, columnIndex) => {
+      const afterColumn = after.columns[columnIndex];
+
+      const beforeValue =
+        beforeRow[beforeColumn];
+
+      const afterValue =
+        afterRow[afterColumn];
+
+      if (beforeValue !== afterValue) {
+        modifiedCells.push({
+          type: "cell_update",
+          rowIndex,
+          column: afterColumn,
+          before: beforeValue,
+          after: afterValue,
+        });
+      }
+    });
+  });
+
   return {
     summary: {
-      renamedColumns,
-      modifiedCells: 0,
+      renamedColumns:
+        renamedColumns.length,
+      modifiedCells:
+        modifiedCells.length,
     },
 
-    changes,
+    changes: [
+      ...renamedColumns,
+      ...modifiedCells,
+    ],
   };
 }

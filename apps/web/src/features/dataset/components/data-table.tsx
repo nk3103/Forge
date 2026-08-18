@@ -1,10 +1,14 @@
 import type { Dataset } from "../types";
 
+import { DataRow } from "./data-row";
+
 interface DataTableProps {
   dataset: Dataset;
 }
 
-export function DataTable({ dataset }: DataTableProps) {
+export function DataTable({
+  dataset,
+}: DataTableProps) {
   return (
     <div className="overflow-auto rounded-xl border">
       <table className="w-full border-collapse text-sm">
@@ -23,19 +27,11 @@ export function DataTable({ dataset }: DataTableProps) {
 
         <tbody>
           {dataset.rows.map((row, index) => (
-            <tr
+            <DataRow
               key={index}
-              className="border-b hover:bg-muted/40"
-            >
-              {dataset.columns.map((column) => (
-                <td
-                  key={column}
-                  className="px-4 py-3"
-                >
-                  {row[column]}
-                </td>
-              ))}
-            </tr>
+              columns={dataset.columns}
+              row={row}
+            />
           ))}
         </tbody>
       </table>

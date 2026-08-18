@@ -8,14 +8,23 @@ export interface DatasetDiffSummary {
   modifiedCells: number;
 }
 
-export interface DatasetChange {
-  type: "rename_column" | "cell_update";
+export type DatasetChange =
+  | RenameColumnChange
+  | CellUpdateChange;
 
-  column?: string;
+export interface RenameColumnChange {
+  type: "rename_column";
 
-  rowIndex?: number;
+  from: string;
+  to: string;
+}
+
+export interface CellUpdateChange {
+  type: "cell_update";
+
+  rowIndex: number;
+  column: string;
 
   before: unknown;
-
   after: unknown;
 }
