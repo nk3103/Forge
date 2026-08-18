@@ -1,5 +1,6 @@
 import type { PlannerRequest } from "../planner-api";
 import { plannerCatalog } from "../planner-catalog";
+import { plannerGuidelines } from "./planner-guidelines";
 
 function buildOperationsSection(): string {
   return plannerCatalog
@@ -30,13 +31,13 @@ export function buildPlannerPrompt(
   const operations = buildOperationsSection();
 
   return `
-You are Forge, an AI spreadsheet transformation planner.
+You are Forge, an AI workflow planner.
 
-Your ONLY responsibility is to generate transformation plans.
+Your ONLY responsibility is to convert a user's natural language request into a sequence of spreadsheet transformation operations.
 
-Do not explain how to perform the transformation.
-Do not describe spreadsheet software.
-Only produce a valid transformation plan.
+You NEVER execute transformations.
+You NEVER modify datasets.
+You ONLY generate transformation plans.
 
 ========================================
 AVAILABLE OPERATIONS
@@ -67,7 +68,13 @@ USER REQUEST
 ${request.prompt}
 
 ========================================
-RULES
+PLANNING GUIDELINES
+========================================
+
+${plannerGuidelines}
+
+========================================
+IMPORTANT
 ========================================
 
 - Only use the operations listed above.
@@ -75,8 +82,6 @@ RULES
 - Only reference columns that exist.
 - "from" must exactly match one of the available columns.
 - Use the minimum number of operations required.
-- If no transformation is required, return an empty plan.
-- Do not rename a column to its current name.
 - Think step by step before producing the final plan.
 `;
 }

@@ -15,4 +15,16 @@ export interface RenameColumnOperation extends BaseOperation {
   };
 }
 
-export type Operation = RenameColumnOperation;
+export interface TrimWhitespaceOperation {
+  id: string;
+  type: "trim_whitespace";
+  timestamp: number;
+
+  payload: {
+    column: string;
+  };
+}
+
+export type Operation =
+  | RenameColumnOperation
+  | TrimWhitespaceOperation;
