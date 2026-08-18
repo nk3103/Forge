@@ -4,11 +4,13 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
-import type { RenameColumnOperation } from "@/features/operations/operation-types";
-
+import type {
+  Operation,
+  RenameColumnOperation,
+} from "@/features/operations/operation-types";
 interface RenameColumnCommandProps {
   columns: string[];
-  onSubmit: (operation: RenameColumnOperation) => void;
+  onSubmit: (operation: Operation) => void;
 }
 
 export function RenameColumnCommand({
