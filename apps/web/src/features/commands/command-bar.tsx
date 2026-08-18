@@ -13,6 +13,7 @@ import { RenameColumnCommand } from "./rename-column-command";
 import { PlannerView } from "@/features/planner/planner-view";
 import { GeneratedPlan } from "@/features/planner/generated-plan";
 import { MockPlanner } from "@/features/planner/mock-planner";
+import { OpenAIPlanner } from "@/features/planner/openai-planner";
 
 import type {
   GeneratedPlan as GeneratedPlanType,
@@ -39,9 +40,9 @@ export function CommandBar({
     );
 
   const planner = useMemo(
-    () => new MockPlanner(),
-    [],
-  );
+  () => new OpenAIPlanner(),
+  [],
+);
 
   async function handleGenerate(
     prompt: string,
