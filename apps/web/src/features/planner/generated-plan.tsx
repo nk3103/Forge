@@ -2,9 +2,8 @@
 
 import { Button } from "@/components/ui/button";
 
-import { describeOperation } from "@/features/operations/describe-operation";
-
 import type { GeneratedPlan } from "./planner-types";
+import { OperationCard } from "./operation-card";
 
 interface GeneratedPlanProps {
   plan: GeneratedPlan;
@@ -34,36 +33,20 @@ export function GeneratedPlan({
 
         <p className="text-sm text-muted-foreground">
           Confidence:{" "}
-          <span className="capitalize font-medium">
+          <span className="font-medium capitalize">
             {plan.confidence}
           </span>
         </p>
       </div>
 
       <div className="space-y-4">
-        {plan.steps.map((step) => {
-          const description =
-            describeOperation(step.operation);
-
-          return (
-            <div
-              key={step.operation.id}
-              className="rounded-lg border bg-background p-4"
-            >
-              <div className="font-medium">
-                {description.title}
-              </div>
-
-              <div className="text-sm text-muted-foreground">
-                {description.description}
-              </div>
-
-              <div className="mt-2 text-sm">
-                {step.explanation}
-              </div>
-            </div>
-          );
-        })}
+        {plan.steps.map((step) => (
+          <OperationCard
+            key={step.operation.id}
+            operation={step.operation}
+            explanation={step.explanation}
+          />
+        ))}
       </div>
 
       <Button
