@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import type { Dataset } from "@/features/dataset/types";
@@ -11,9 +10,8 @@ import type { Operation } from "@/features/operations/operation-types";
 import { RenameColumnCommand } from "./rename-column-command";
 
 import { PlannerView } from "@/features/planner/planner-view";
-import { GeneratedPlan } from "@/features/planner/generated-plan";
-import { MockPlanner } from "@/features/planner/mock-planner";
 import { OpenAIPlanner } from "@/features/planner/openai-planner";
+import { PlanSession } from "@/features/planner/plan-session";
 
 import type {
   GeneratedPlan as GeneratedPlanType,
@@ -40,37 +38,38 @@ export function CommandBar({
     );
 
   const planner = useMemo(
-  () => new OpenAIPlanner(),
-  [],
-);
+    () => new OpenAIPlanner(),
+    [],
+  );
 
   async function handleGenerate(
     prompt: string,
   ) {
     setLoading(true);
 
-    const generated =
-      await planner.generatePlan(
-        dataset,
-        prompt,
-      );
+    try {
+      const generated =
+        await planner.generatePlan(
+          dataset,
+          prompt,
+        );
 
-    setPlan(generated);
-
-    setLoading(false);
+      setPlan(generated);
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleApply() {
-  if (!plan) return;
+    if (!plan) return;
 
-  plan.steps.forEach((step) => {
-    onOperation(step.operation);
-  });
+    plan.steps.forEach((step) => {
+      onOperation(step.operation);
+    });
 
-  setPlan(null);
-
-  setMode("manual");
-}
+    setPlan(null);
+    setMode("manual");
+  }
 
   return (
     <section className="rounded-xl border bg-card p-6">
@@ -126,7 +125,8 @@ export function CommandBar({
           />
 
           {plan && (
-            <GeneratedPlan
+            <PlanSession
+              dataset={dataset}
               plan={plan}
               onApply={handleApply}
             />

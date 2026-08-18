@@ -12,39 +12,34 @@ export class OpenAIPlanner
   implements Planner
 {
   async generatePlan(
-    dataset: Dataset,
-    prompt: string,
-  ): Promise<GeneratedPlan> {
-    const request: PlannerRequest = {
+  dataset: Dataset,
+  prompt: string,
+): Promise<GeneratedPlan> {
+  const request: PlannerRequest = {
     columns: dataset.columns,
     sampleRows: dataset.rows.slice(0, 5),
     prompt,
-};
+  };
 
-    const response = await fetch(
-      "/api/planner",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type":
-            "application/json",
-        },
-        body: JSON.stringify(request),
-      },
+  const response = await fetch("/api/planner", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(request),
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Planner request failed: ${response.status}`,
     );
+  }
 
-    const result =
-      (await response.json()) as PlannerResponse;
-
-    const plannerResponse =
+  const plannerResponse =
     (await response.json()) as PlannerResponse;
 
-return mapPlannerResponse(
+  return mapPlannerResponse(
     plannerResponse,
-);
-
-return mapPlannerResponse(
-    plannerResponse,
-);
-  }
+  );
+}
 }

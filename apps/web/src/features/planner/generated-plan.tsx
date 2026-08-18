@@ -1,18 +1,14 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-
 import type { GeneratedPlan } from "./planner-types";
 import { OperationCard } from "./operation-card";
 
 interface GeneratedPlanProps {
   plan: GeneratedPlan;
-  onApply: () => void;
 }
 
 export function GeneratedPlan({
   plan,
-  onApply,
 }: GeneratedPlanProps) {
   if (plan.steps.length === 0) {
     return (
@@ -49,12 +45,6 @@ export function GeneratedPlan({
         ))}
       </div>
 
-      <Button
-        className="mt-5"
-        onClick={onApply}
-      >
-        Apply Plan
-      </Button>
     </div>
   );
 }
