@@ -1,6 +1,7 @@
 import type { Dataset } from "../types";
 import type {
   CellUpdateChange,
+  DeleteColumnChange,
   DatasetDiff,
   RenameColumnChange,
 } from "./dataset-diff";
@@ -10,12 +11,26 @@ export function createDatasetDiff(
   after: Dataset,
 ): DatasetDiff {
   const renamedColumns: RenameColumnChange[] = [];
+  const deletedColumns: DeleteColumnChange[] = [];
   const modifiedCells: CellUpdateChange[] = [];
+  const deletedColumnNames = new Set(
+    before.columns.filter(
+      (column) => !after.columns.includes(column),
+    ),
+  );
 
   before.columns.forEach((column, index) => {
     const nextColumn = after.columns[index];
 
-    if (column !== nextColumn) {
+    if (deletedColumnNames.has(column)) {
+      deletedColumns.push({
+        type: "delete_column",
+        column,
+      });
+    } else if (
+      before.columns.length === after.columns.length &&
+      column !== nextColumn
+    ) {
       renamedColumns.push({
         type: "rename_column",
         from: column,
@@ -31,8 +46,11 @@ export function createDatasetDiff(
       return;
     }
 
-    before.columns.forEach((beforeColumn, columnIndex) => {
-      const afterColumn = after.columns[columnIndex];
+    after.columns.forEach((afterColumn, columnIndex) => {
+      const beforeColumn =
+        before.columns.length === after.columns.length
+          ? before.columns[columnIndex]
+          : afterColumn;
 
       const beforeValue =
         beforeRow[beforeColumn];
@@ -56,12 +74,15 @@ export function createDatasetDiff(
     summary: {
       renamedColumns:
         renamedColumns.length,
+      deletedColumns:
+        deletedColumns.length,
       modifiedCells:
         modifiedCells.length,
     },
 
     changes: [
       ...renamedColumns,
+      ...deletedColumns,
       ...modifiedCells,
     ],
   };

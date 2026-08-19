@@ -50,6 +50,46 @@ export function validatePlan(
         break;
       }
 
+      case "replace_text": {
+        const { column } = step.operation.payload;
+
+        if (!columns.has(column)) {
+          issues.push({
+            severity: "error",
+            message: `Column "${column}" does not exist.`,
+          });
+        }
+
+        break;
+      }
+
+      case "uppercase": {
+        const { column } = step.operation.payload;
+
+        if (!columns.has(column)) {
+          issues.push({
+            severity: "error",
+            message: `Column "${column}" does not exist.`,
+          });
+        }
+
+        break;
+      }
+
+      case "delete_column": {
+        const { column } = step.operation.payload;
+
+        if (!columns.has(column)) {
+          issues.push({
+            severity: "error",
+            message: `Column "${column}" does not exist.`,
+          });
+        }
+
+        columns.delete(column);
+        break;
+      }
+
       default:
         break;
     }

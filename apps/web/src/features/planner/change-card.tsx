@@ -3,6 +3,7 @@
 import type { DatasetChange } from "@/features/dataset/diff/dataset-diff";
 
 import { RenameChangeCard } from "./change-cards/rename-change-card";
+import { DeleteChangeCard } from "./change-cards/delete-change-card";
 import { CellUpdateChangeCard } from "./change-cards/cell-update-change-card";
 
 interface ChangeCardProps {
@@ -26,5 +27,8 @@ export function ChangeCard({
           change={change}
         />
       );
+
+    case "delete_column":
+      return <DeleteChangeCard change={change} />;
   }
 }

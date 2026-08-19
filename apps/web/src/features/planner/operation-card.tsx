@@ -4,6 +4,9 @@ import type { Operation } from "@/features/operations/operation-types";
 
 import { RenameOperationCard } from "./operation-cards/rename-operation-card";
 import { TrimWhitespaceOperationCard } from "./operation-cards/trim-whitespace-operation-card";
+import { ReplaceTextOperationCard } from "./operation-cards/replace-text-operation-card";
+import { UppercaseOperationCard } from "./operation-cards/uppercase-operation-card";
+import { DeleteColumnOperationCard } from "./operation-cards/delete-column-operation-card";
 
 interface OperationCardProps {
   operation: Operation;
@@ -26,6 +29,30 @@ export function OperationCard({
     case "trim_whitespace":
       return (
         <TrimWhitespaceOperationCard
+          operation={operation}
+          explanation={explanation}
+        />
+      );
+
+    case "replace_text":
+      return (
+        <ReplaceTextOperationCard
+          operation={operation}
+          explanation={explanation}
+        />
+      );
+
+    case "uppercase":
+      return (
+        <UppercaseOperationCard
+          operation={operation}
+          explanation={explanation}
+        />
+      );
+
+    case "delete_column":
+      return (
+        <DeleteColumnOperationCard
           operation={operation}
           explanation={explanation}
         />

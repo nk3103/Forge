@@ -17,17 +17,21 @@ export function ChangeSummary({
 
   return (
     <section className="space-y-4 rounded-xl border bg-muted/30 p-5">
-      <div>
-        <h4 className="font-semibold">
-          Expected Changes
-        </h4>
-
+      <div className="flex items-end justify-between border-b pb-3">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">
+            Review
+          </p>
+          <h4 className="mt-1 text-lg font-semibold">
+            Expected changes
+          </h4>
+        </div>
         <p className="text-sm text-muted-foreground">
-          Here's what Forge will change.
+          {diff.changes.length} items
         </p>
       </div>
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {diff.changes.map((change, index) => (
           <ChangeCard
             key={index}

@@ -40,6 +40,56 @@ const TrimWhitespaceSchema = z.object({
     .describe("Why trimming whitespace is required."),
 });
 
+const ReplaceTextSchema = z.object({
+  type: z
+    .literal("replace_text")
+    .describe(
+      "Replace every occurrence of text in string values in a column.",
+    ),
+
+  payload: z.object({
+    column: z.string().describe("Column whose values should be updated."),
+    find: z.string().describe("Text to find."),
+    replace: z.string().describe("Replacement text."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why replacing this text is required."),
+});
+
+const UppercaseSchema = z.object({
+  type: z
+    .literal("uppercase")
+    .describe("Convert every string value in a column to uppercase."),
+
+  payload: z.object({
+    column: z
+      .string()
+      .describe("Column whose string values should be uppercased."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why uppercasing this column is required."),
+});
+
+const DeleteColumnSchema = z.object({
+  type: z
+    .literal("delete_column")
+    .describe("Delete an existing column."),
+
+  payload: z.object({
+    column: z
+      .string()
+      .describe("Column to delete."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why deleting this column is required."),
+});
+
 export const PlannerSchema = z.object({
   confidence: z
     .enum([
@@ -55,6 +105,9 @@ export const PlannerSchema = z.object({
     z.discriminatedUnion("type", [
       RenameColumnSchema,
       TrimWhitespaceSchema,
+      ReplaceTextSchema,
+      UppercaseSchema,
+      DeleteColumnSchema,
     ]),
   ),
 });

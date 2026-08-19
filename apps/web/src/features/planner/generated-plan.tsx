@@ -20,7 +20,7 @@ export function GeneratedPlan({
     return (
       <div className="rounded-lg border border-dashed p-6">
         <p className="text-sm text-muted-foreground">
-          Forge couldn't generate a plan for this request.
+          Forge couldn&apos;t generate a plan for this request.
         </p>
       </div>
     );
@@ -28,31 +28,32 @@ export function GeneratedPlan({
 
   return (
     <div className="mt-6 rounded-xl border bg-muted/30 p-5">
-      <div className="mb-5">
-        <h4 className="font-semibold">
-          AI Plan
-        </h4>
-
-        <p className="text-sm text-muted-foreground">
-          Confidence{" "}
-          <span className="font-medium capitalize">
-            {plan.confidence}
-          </span>
-        </p>
+      <div className="mb-5 flex items-end justify-between">
+        <div>
+          <p className="text-sm font-medium text-muted-foreground">
+            Proposed workflow
+          </p>
+          <h4 className="mt-1 text-lg font-semibold">
+            AI plan
+          </h4>
+        </div>
+        <span className="rounded-md border bg-background px-3 py-1 text-xs font-medium capitalize">
+          {plan.confidence} confidence
+        </span>
       </div>
 
       <div className="space-y-6">
         {plan.steps.map((step) => (
           <div
             key={step.operation.id}
-            className="rounded-lg border bg-background p-4"
+            className="border-b pb-5 last:border-b-0 last:pb-0"
           >
             <OperationCard
               operation={step.operation}
               explanation={step.explanation}
             />
 
-            <div className="mt-4 border-t pt-4">
+            <div className="mt-4 border-t border-dashed pt-4">
               <OperationEditor
                 operation={step.operation}
                 onChange={(operation) => {

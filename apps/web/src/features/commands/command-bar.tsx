@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { Dataset } from "@/features/dataset/types";
 import type { Operation } from "@/features/operations/operation-types";
 
+import { DeleteColumnCommand } from "./delete-column-command";
 import { RenameColumnCommand } from "./rename-column-command";
 
 import { PlannerView } from "@/features/planner/planner-view";
@@ -113,10 +114,17 @@ function handleApply(
       </div>
 
       {mode === "manual" ? (
-        <RenameColumnCommand
-          columns={dataset.columns}
-          onSubmit={onOperation}
-        />
+        <div className="space-y-8">
+          <RenameColumnCommand
+            columns={dataset.columns}
+            onSubmit={onOperation}
+          />
+
+          <DeleteColumnCommand
+            columns={dataset.columns}
+            onSubmit={onOperation}
+          />
+        </div>
       ) : (
         <>
           <PlannerView

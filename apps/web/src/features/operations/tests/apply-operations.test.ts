@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import { applyOperations } from "../apply-operations";
 
 import type { Dataset } from "@/features/dataset/types";
-import type { RenameColumnOperation } from "../operation-types";
+import type {
+  DeleteColumnOperation,
+  ReplaceTextOperation,
+  RenameColumnOperation,
+  UppercaseOperation,
+} from "../operation-types";
 
 describe("Transformation Engine", () => {
   const dataset: Dataset = {
@@ -107,5 +112,107 @@ describe("Transformation Engine", () => {
     const result = applyOperations(dataset, [operation]);
 
     expect(result).toEqual(dataset);
+  });
+
+  it("deletes a column and its row values", () => {
+    const operation: DeleteColumnOperation = {
+      id: "operation-1",
+      type: "delete_column",
+      timestamp: Date.now(),
+      payload: {
+        column: "AGE",
+      },
+    };
+
+    const result = applyOperations(dataset, [operation]);
+
+    expect(result.columns).toEqual(["NAME"]);
+    expect(result.rows).toEqual([
+      { NAME: "Alice" },
+      { NAME: "Bob" },
+    ]);
+    expect(dataset.columns).toEqual(["NAME", "AGE"]);
+    expect(dataset.rows[0]).toEqual({
+      NAME: "Alice",
+      AGE: "24",
+    });
+  });
+
+  it("replaces every occurrence in string values only", () => {
+    const replaceDataset: Dataset = {
+      ...dataset,
+      columns: ["DESCRIPTION", "COUNT", "EMPTY"],
+      rows: [
+        {
+          DESCRIPTION: "red-red-blue",
+          COUNT: 2,
+          EMPTY: null,
+        },
+        {
+          DESCRIPTION: "green",
+          COUNT: false,
+          EMPTY: undefined,
+        },
+      ],
+    };
+    const operation: ReplaceTextOperation = {
+      id: "operation-2",
+      type: "replace_text",
+      timestamp: Date.now(),
+      payload: {
+        column: "DESCRIPTION",
+        find: "red",
+        replace: "orange",
+      },
+    };
+
+    const result = applyOperations(replaceDataset, [operation]);
+
+    expect(result.rows).toEqual([
+      {
+        DESCRIPTION: "orange-orange-blue",
+        COUNT: 2,
+        EMPTY: null,
+      },
+      {
+        DESCRIPTION: "green",
+        COUNT: false,
+        EMPTY: undefined,
+      },
+    ]);
+    expect(replaceDataset.rows[0].DESCRIPTION).toBe("red-red-blue");
+  });
+
+  it("uppercases string values and preserves non-string values", () => {
+    const uppercaseDataset: Dataset = {
+      ...dataset,
+      columns: ["VALUE"],
+      rows: [
+        { VALUE: "Hello, Forge!" },
+        { VALUE: null },
+        { VALUE: 42 },
+        { VALUE: false },
+        { VALUE: undefined },
+      ],
+    };
+    const operation: UppercaseOperation = {
+      id: "operation-3",
+      type: "uppercase",
+      timestamp: Date.now(),
+      payload: {
+        column: "VALUE",
+      },
+    };
+
+    const result = applyOperations(uppercaseDataset, [operation]);
+
+    expect(result.rows).toEqual([
+      { VALUE: "HELLO, FORGE!" },
+      { VALUE: null },
+      { VALUE: 42 },
+      { VALUE: false },
+      { VALUE: undefined },
+    ]);
+    expect(uppercaseDataset.rows[0].VALUE).toBe("Hello, Forge!");
   });
 });

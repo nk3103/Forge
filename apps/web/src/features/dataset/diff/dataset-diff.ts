@@ -5,11 +5,13 @@ export interface DatasetDiff {
 
 export interface DatasetDiffSummary {
   renamedColumns: number;
+  deletedColumns: number;
   modifiedCells: number;
 }
 
 export type DatasetChange =
   | RenameColumnChange
+  | DeleteColumnChange
   | CellUpdateChange;
 
 export interface RenameColumnChange {
@@ -17,6 +19,11 @@ export interface RenameColumnChange {
 
   from: string;
   to: string;
+}
+
+export interface DeleteColumnChange {
+  type: "delete_column";
+  column: string;
 }
 
 export interface CellUpdateChange {

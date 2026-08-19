@@ -10,6 +10,8 @@ export interface DiffIndex {
     RenameColumnChange
   >;
 
+  deletedColumns: Set<string>;
+
   changedCells: Map<
     string,
     CellUpdateChange
@@ -29,6 +31,8 @@ export function createDiffIndex(
     CellUpdateChange
   >();
 
+  const deletedColumns = new Set<string>();
+
   diff.changes.forEach((change) => {
     switch (change.type) {
       case "rename_column":
@@ -44,11 +48,16 @@ export function createDiffIndex(
           change,
         );
         break;
+
+      case "delete_column":
+        deletedColumns.add(change.column);
+        break;
     }
   });
 
   return {
     renamedColumns,
+    deletedColumns,
     changedCells,
   };
 }

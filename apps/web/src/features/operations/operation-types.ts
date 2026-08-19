@@ -1,4 +1,9 @@
-export type OperationType = "rename_column";
+export type OperationType =
+  | "rename_column"
+  | "trim_whitespace"
+  | "replace_text"
+  | "uppercase"
+  | "delete_column";
 
 export interface BaseOperation {
   id: string;
@@ -25,6 +30,36 @@ export interface TrimWhitespaceOperation {
   };
 }
 
+export interface ReplaceTextOperation extends BaseOperation {
+  type: "replace_text";
+
+  payload: {
+    column: string;
+    find: string;
+    replace: string;
+  };
+}
+
+export interface UppercaseOperation extends BaseOperation {
+  type: "uppercase";
+
+  payload: {
+    column: string;
+  };
+}
+
+export interface DeleteColumnOperation extends BaseOperation {
+  id: string;
+  type: "delete_column";
+
+  payload: {
+    column: string;
+  };
+}
+
 export type Operation =
   | RenameColumnOperation
-  | TrimWhitespaceOperation;
+  | TrimWhitespaceOperation
+  | ReplaceTextOperation
+  | UppercaseOperation
+  | DeleteColumnOperation;

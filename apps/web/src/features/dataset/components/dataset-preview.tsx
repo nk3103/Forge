@@ -16,12 +16,17 @@ export function DatasetPreview({
 }: DatasetPreviewProps) {
   return (
     <div className="space-y-4 rounded-xl border p-6">
-      <div>
-        <h2 className="text-xl font-semibold">
-          {dataset.name}
-        </h2>
+      <div className="flex items-end justify-between">
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Result preview
+          </p>
+          <h2 className="mt-1 text-lg font-semibold">
+            {dataset.name}
+          </h2>
+        </div>
 
-        <p className="text-muted-foreground">
+        <p className="text-right text-sm text-muted-foreground">
           {dataset.rows.length} rows •{" "}
           {dataset.columns.length} columns
         </p>
