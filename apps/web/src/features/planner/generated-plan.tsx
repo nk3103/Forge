@@ -1,14 +1,20 @@
 "use client";
 
-import type { GeneratedPlan } from "./planner-types";
+import type { GeneratedPlan as GeneratedPlanType } from "./planner-types";
+
 import { OperationCard } from "./operation-card";
+import { OperationEditor } from "./operation-editors/operation-editor";
 
 interface GeneratedPlanProps {
-  plan: GeneratedPlan;
+  plan: GeneratedPlanType;
+  onPlanChange: (
+    plan: GeneratedPlanType,
+  ) => void;
 }
 
 export function GeneratedPlan({
   plan,
+  onPlanChange,
 }: GeneratedPlanProps) {
   if (plan.steps.length === 0) {
     return (
@@ -28,23 +34,49 @@ export function GeneratedPlan({
         </h4>
 
         <p className="text-sm text-muted-foreground">
-          Confidence:{" "}
+          Confidence{" "}
           <span className="font-medium capitalize">
             {plan.confidence}
           </span>
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {plan.steps.map((step) => (
-          <OperationCard
+          <div
             key={step.operation.id}
-            operation={step.operation}
-            explanation={step.explanation}
-          />
+            className="rounded-lg border bg-background p-4"
+          >
+            <OperationCard
+              operation={step.operation}
+              explanation={step.explanation}
+            />
+
+            <div className="mt-4 border-t pt-4">
+              <OperationEditor
+                operation={step.operation}
+                onChange={(operation) => {
+                  const updatedPlan = {
+                    ...plan,
+                    steps: plan.steps.map(
+                      (currentStep) =>
+                        currentStep.operation.id ===
+                        operation.id
+                          ? {
+                              ...currentStep,
+                              operation,
+                            }
+                          : currentStep,
+                    ),
+                  };
+
+                  onPlanChange(updatedPlan);
+                }}
+              />
+            </div>
+          </div>
         ))}
       </div>
-
     </div>
   );
 }

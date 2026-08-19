@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 
@@ -10,6 +10,7 @@ import { DatasetPreview } from "@/features/dataset/components/dataset-preview";
 import { applyOperations } from "@/features/operations/apply-operations";
 
 import { createDatasetDiff } from "@/features/dataset/diff/create-dataset-diff";
+import { createDiffIndex } from "@/features/dataset/diff/create-diff-index";
 
 import { GeneratedPlan } from "./generated-plan";
 import type { GeneratedPlan as GeneratedPlanType } from "./planner-types";
@@ -20,7 +21,9 @@ import { ChangeSummary } from "./change-summary";
 interface PlanSessionProps {
   dataset: Dataset;
   plan: GeneratedPlanType;
-  onApply: () => void;
+  onApply: (
+    plan: GeneratedPlanType,
+  ) => void;
 }
 
 export function PlanSession({
@@ -28,9 +31,22 @@ export function PlanSession({
   plan,
   onApply,
 }: PlanSessionProps) {
+  const [
+    editablePlan,
+    setEditablePlan,
+  ] = useState(plan);
+
+  useEffect(() => {
+    setEditablePlan(plan);
+  }, [plan]);
+
   const issues = useMemo(
-    () => validatePlan(dataset, plan),
-    [dataset, plan],
+    () =>
+      validatePlan(
+        dataset,
+        editablePlan,
+      ),
+    [dataset, editablePlan],
   );
 
   const hasErrors = issues.some(
@@ -41,9 +57,11 @@ export function PlanSession({
     () =>
       applyOperations(
         dataset,
-        plan.steps.map((step) => step.operation),
+        editablePlan.steps.map(
+          (step) => step.operation,
+        ),
       ),
-    [dataset, plan],
+    [dataset, editablePlan],
   );
 
   const diff = useMemo(
@@ -55,9 +73,21 @@ export function PlanSession({
     [dataset, previewDataset],
   );
 
+  const diffIndex = useMemo(
+    () => createDiffIndex(diff),
+    [diff],
+  );
+
+  function handleApply() {
+    onApply(editablePlan);
+  }
+
   return (
     <div className="space-y-6">
-      <GeneratedPlan plan={plan} />
+      <GeneratedPlan
+        plan={editablePlan}
+        onPlanChange={setEditablePlan}
+      />
 
       <PlanValidation issues={issues} />
 
@@ -65,12 +95,13 @@ export function PlanSession({
 
       <DatasetPreview
         dataset={previewDataset}
+        diffIndex={diffIndex}
       />
 
       <div className="flex justify-end">
         <Button
           disabled={hasErrors}
-          onClick={onApply}
+          onClick={handleApply}
         >
           Apply Plan
         </Button>

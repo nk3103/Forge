@@ -60,16 +60,16 @@ export function CommandBar({
     }
   }
 
-  function handleApply() {
-    if (!plan) return;
+function handleApply(
+  plan: GeneratedPlanType,
+) {
+  plan.steps.forEach((step) => {
+    onOperation(step.operation);
+  });
 
-    plan.steps.forEach((step) => {
-      onOperation(step.operation);
-    });
-
-    setPlan(null);
-    setMode("manual");
-  }
+  setPlan(null);
+  setMode("manual");
+}
 
   return (
     <section className="rounded-xl border bg-card p-6">
