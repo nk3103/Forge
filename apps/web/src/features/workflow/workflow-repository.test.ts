@@ -34,7 +34,11 @@ const workflow: Workflow = {
   createdAt: 100,
   updatedAt: 100,
   sourcePrompt: "Normalize names",
-  datasetSignature: "name",
+  datasetSignature: {
+    columns: ["name"],
+    columnCount: 1,
+    columnTypes: { name: "string" },
+  },
   usageCount: 0,
   version: 1,
 };

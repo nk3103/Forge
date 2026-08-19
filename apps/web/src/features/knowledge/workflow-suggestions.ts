@@ -1,6 +1,9 @@
 import type { Dataset } from "@/features/dataset/types";
 
-import { createDatasetSignature } from "./dataset-signature";
+import {
+  createDatasetSignature,
+  datasetSignatureKey,
+} from "./dataset-signature";
 import {
   findWorkflow,
   type LearnedWorkflow,
@@ -10,7 +13,9 @@ export function suggestWorkflow(
   dataset: Dataset,
 ): LearnedWorkflow | undefined {
   const signature =
-    createDatasetSignature(dataset);
+    datasetSignatureKey(
+      createDatasetSignature(dataset),
+    );
 
   return findWorkflow(signature);
 }

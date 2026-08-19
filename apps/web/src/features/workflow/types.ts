@@ -1,6 +1,17 @@
 import type { Operation } from "@/features/operations/operation-types";
 
-export type DatasetSignature = string;
+export type DatasetColumnType =
+  | "string"
+  | "number"
+  | "boolean"
+  | "empty"
+  | "unknown";
+
+export interface DatasetSignature {
+  columns: string[];
+  columnCount: number;
+  columnTypes: Record<string, DatasetColumnType>;
+}
 
 export interface WorkflowMetadata {
   id: string;

@@ -11,7 +11,7 @@ describe("Dataset Signature", () => {
         columns: ["NAME", "AGE"],
         rows: [],
       }),
-    ).toBe(
+    ).toEqual(
       createDatasetSignature({
         id: "2",
         name: "employees.csv",
@@ -29,7 +29,7 @@ describe("Dataset Signature", () => {
         columns: ["Name"],
         rows: [],
       }),
-    ).toBe(
+    ).toEqual(
       createDatasetSignature({
         id: "2",
         name: "",

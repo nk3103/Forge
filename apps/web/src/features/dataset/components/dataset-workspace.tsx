@@ -2,13 +2,11 @@
 
 import { useCallback, useMemo, useState } from "react";
 
-import { Button } from "@/components/ui/button";
-
-import { CommandBar } from "@/features/commands/command-bar";
-
 import {
   createDatasetSignature,
+  datasetSignatureKey,
 } from "@/features/knowledge/dataset-signature";
+import { findBestWorkflowMatch } from "@/features/knowledge/workflow-matcher";
 
 import {
   rememberWorkflow,
@@ -17,27 +15,23 @@ import {
 
 import {
   recordWorkflowUsage,
+  loadWorkflows,
   saveWorkflow,
 } from "@/features/workflow/workflow-repository";
 import type { Workflow } from "@/features/workflow/types";
 import { createWorkflow } from "@/features/workflow/create-workflow";
 import { workflowToGeneratedPlan } from "@/features/workflow/workflow-to-plan";
-import { WorkflowLibrary } from "@/features/workflow/workflow-library";
 
 import { suggestWorkflow } from "@/features/knowledge/workflow-suggestions";
-import { WorkflowSuggestion } from "@/features/knowledge/workflow-suggestion";
 
-import { WorkflowTimeline } from "@/features/operations/workflow-timeline";
 import { applyOperations } from "@/features/operations/apply-operations";
 import type { Operation } from "@/features/operations/operation-types";
 
 import type { Dataset } from "../types";
 
-import { DataTable } from "./data-table";
-import { DatasetHeader } from "./dataset-header";
-import { DatasetUpload } from "./dataset-upload";
-import { PlanSession } from "@/features/planner/plan-session";
 import type { GeneratedPlan } from "@/features/planner/planner-types";
+import { EmptyWorkspace } from "./empty-workspace";
+import { LoadedWorkspace } from "./loaded-workspace";
 
 export function DatasetWorkspace() {
   const [originalDataset, setOriginalDataset] =
@@ -51,6 +45,9 @@ export function DatasetWorkspace() {
 
   const [suggestedWorkflow, setSuggestedWorkflow] =
     useState<LearnedWorkflow | null>(null);
+
+  const [matchedWorkflow, setMatchedWorkflow] =
+    useState<ReturnType<typeof findBestWorkflowMatch>>(null);
 
   const [executionPlan, setExecutionPlan] =
     useState<{
@@ -69,12 +66,19 @@ export function DatasetWorkspace() {
     );
   }, [originalDataset, operations]);
 
-  const sourceDatasetSignature =
-    originalDataset
-      ? createDatasetSignature(originalDataset)
-      : dataset
-        ? createDatasetSignature(dataset)
-        : "";
+  const sourceDatasetSignature = useMemo(
+    () =>
+      originalDataset
+        ? createDatasetSignature(originalDataset)
+        : dataset
+          ? createDatasetSignature(dataset)
+          : {
+              columns: [],
+              columnCount: 0,
+              columnTypes: {},
+            },
+    [originalDataset, dataset],
+  );
 
   const handleOperation = useCallback(
     (operation: Operation) => {
@@ -105,7 +109,9 @@ export function DatasetWorkspace() {
     rememberWorkflow({
       id: crypto.randomUUID(),
       datasetSignature:
-        createDatasetSignature(originalDataset),
+        datasetSignatureKey(
+          createDatasetSignature(originalDataset),
+        ),
       operations: [...operations],
     });
 
@@ -138,6 +144,13 @@ export function DatasetWorkspace() {
       setWorkflowSaved(false);
 
       setExecutionPlan(null);
+
+      setMatchedWorkflow(
+        findBestWorkflowMatch(
+          dataset,
+          loadWorkflows(),
+        ),
+      );
 
       const workflow =
         suggestWorkflow(dataset);
@@ -212,82 +225,30 @@ const replayedOperations =
     ],
   );
 
+  if (!dataset) {
+    return (
+      <EmptyWorkspace
+        onDatasetLoaded={handleDatasetLoaded}
+      />
+    );
+  }
+
   return (
-    <section className="space-y-6">
-      {!dataset ? (
-        <section className="rounded-2xl border border-dashed border-border/60 p-12">
-        <div className="flex flex-col items-center gap-6">
-          <DatasetUpload
-            onDatasetLoaded={
-              handleDatasetLoaded
-            }
-          />
-
-          <p className="max-w-md text-center text-sm text-muted-foreground">
-            Upload your first spreadsheet to
-            teach Forge how you clean,
-            transform and organize data.
-          </p>
-        </div>
-        </section>
-      ) : (
-        <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
-          <div className="flex items-start justify-between">
-            <DatasetHeader dataset={dataset} />
-
-            <DatasetUpload
-              compact
-              onDatasetLoaded={handleDatasetLoaded}
-            />
-          </div>
-
-          <DataTable dataset={dataset} />
-
-          {suggestedWorkflow && (
-            <WorkflowSuggestion
-              workflow={suggestedWorkflow}
-              onApply={handleApplyWorkflow}
-              onDismiss={handleDismissSuggestion}
-            />
-          )}
-
-          <WorkflowLibrary
-            onPreviewWorkflow={handlePreviewWorkflow}
-          />
-
-          <CommandBar
-            dataset={dataset}
-            onOperation={handleOperation}
-            onExecutionRequested={
-              handleExecutionRequested
-            }
-          />
-
-          {executionPlan && (
-            <PlanSession
-              dataset={dataset}
-              plan={executionPlan.plan}
-              onApply={handleApplySavedWorkflow}
-            />
-          )}
-
-          <WorkflowTimeline operations={operations} />
-
-          <div className="flex justify-end">
-            <Button
-              onClick={handleSaveWorkflow}
-              disabled={
-                operations.length === 0 ||
-                workflowSaved
-              }
-            >
-              {workflowSaved
-                ? "Workflow Saved"
-                : "Save Workflow"}
-            </Button>
-          </div>
-        </section>
-      )}
-    </section>
+    <LoadedWorkspace
+      dataset={dataset}
+      suggestedWorkflow={suggestedWorkflow}
+      matchedWorkflow={matchedWorkflow}
+      executionPlan={executionPlan}
+      operations={operations}
+      workflowSaved={workflowSaved}
+      onDatasetLoaded={handleDatasetLoaded}
+      onApplySuggestedWorkflow={handleApplyWorkflow}
+      onDismissSuggestion={handleDismissSuggestion}
+      onPreviewWorkflow={handlePreviewWorkflow}
+      onOperation={handleOperation}
+      onExecutionRequested={handleExecutionRequested}
+      onApplyExecution={handleApplySavedWorkflow}
+      onSaveWorkflow={handleSaveWorkflow}
+    />
   );
 }

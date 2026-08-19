@@ -1,4 +1,4 @@
-import type { Workflow } from "./types";
+import type { DatasetSignature, Workflow } from "./types";
 
 const WORKFLOWS_STORAGE_KEY = "forge.workflows";
 const WORKFLOWS_CHANGED_EVENT = "forge:workflows-changed";
@@ -9,6 +9,29 @@ function getStorage(): Storage | null {
   }
 
   return window.localStorage;
+}
+
+function normalizeWorkflow(
+  workflow: Workflow & { datasetSignature: DatasetSignature | string },
+): Workflow {
+  if (typeof workflow.datasetSignature !== "string") {
+    return workflow;
+  }
+
+  const columns = workflow.datasetSignature
+    ? workflow.datasetSignature.split("|")
+    : [];
+
+  return {
+    ...workflow,
+    datasetSignature: {
+      columns,
+      columnCount: columns.length,
+      columnTypes: Object.fromEntries(
+        columns.map((column) => [column, "unknown"]),
+      ),
+    },
+  };
 }
 
 function notifyWorkflowChange(): void {
@@ -65,7 +88,9 @@ export function loadWorkflows(): Workflow[] {
     const parsed: unknown = JSON.parse(serialized);
 
     return Array.isArray(parsed)
-      ? (parsed as Workflow[])
+      ? (parsed as Array<Workflow & { datasetSignature: DatasetSignature | string }>).map(
+          normalizeWorkflow,
+        )
       : [];
   } catch {
     return [];

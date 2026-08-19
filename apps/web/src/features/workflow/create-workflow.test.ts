@@ -22,7 +22,11 @@ describe("createWorkflow", () => {
       description: "Reusable employee cleanup workflow.",
       operations: [operation],
       sourcePrompt: "Rename NAME to FULL_NAME",
-      datasetSignature: "age|name",
+      datasetSignature: {
+        columns: ["age", "name"],
+        columnCount: 2,
+        columnTypes: { age: "string", name: "string" },
+      },
       createdAt: 200,
     });
 
@@ -36,7 +40,11 @@ describe("createWorkflow", () => {
       createdAt: 200,
       updatedAt: 200,
       sourcePrompt: "Rename NAME to FULL_NAME",
-      datasetSignature: "age|name",
+      datasetSignature: {
+        columns: ["age", "name"],
+        columnCount: 2,
+        columnTypes: { age: "string", name: "string" },
+      },
       usageCount: 0,
       version: 1,
     });
@@ -47,7 +55,11 @@ describe("createWorkflow", () => {
       name: "Empty workflow",
       operations: [],
       sourcePrompt: "",
-      datasetSignature: "",
+      datasetSignature: {
+        columns: [],
+        columnCount: 0,
+        columnTypes: {},
+      },
     });
 
     expect(workflow.metadata.id).toEqual(expect.any(String));
