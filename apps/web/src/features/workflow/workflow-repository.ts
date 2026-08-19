@@ -110,6 +110,24 @@ export function loadWorkflow(
   );
 }
 
+export function recordWorkflowUsage(
+  workflowId: string,
+): Workflow | null {
+  const workflow = loadWorkflow(workflowId);
+
+  if (!workflow) return null;
+
+  const updatedWorkflow: Workflow = {
+    ...workflow,
+    updatedAt: Date.now(),
+    usageCount: workflow.usageCount + 1,
+  };
+
+  saveWorkflow(updatedWorkflow);
+
+  return updatedWorkflow;
+}
+
 export function removeWorkflow(
   workflowId: string,
 ): void {

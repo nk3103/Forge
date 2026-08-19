@@ -6,16 +6,12 @@ import { cn } from "@/lib/utils";
 
 import type { Dataset } from "@/features/dataset/types";
 import type { Operation } from "@/features/operations/operation-types";
-import { createDatasetSignature } from "@/features/knowledge/dataset-signature";
-import { createWorkflow } from "@/features/workflow/create-workflow";
-import type { Workflow } from "@/features/workflow/types";
 
 import { DeleteColumnCommand } from "./delete-column-command";
 import { RenameColumnCommand } from "./rename-column-command";
 
 import { PlannerView } from "@/features/planner/planner-view";
 import { OpenAIPlanner } from "@/features/planner/openai-planner";
-import { PlanSession } from "@/features/planner/plan-session";
 
 import type {
   GeneratedPlan as GeneratedPlanType,
@@ -23,30 +19,22 @@ import type {
 
 interface CommandBarProps {
   dataset: Dataset;
-  datasetSignature?: string;
   onOperation: (operation: Operation) => void;
-  onWorkflowSaved?: (workflow: Workflow) => void;
+  onExecutionRequested: (
+    plan: GeneratedPlanType,
+  ) => void;
 }
 
 export function CommandBar({
   dataset,
-  datasetSignature,
   onOperation,
-  onWorkflowSaved,
+  onExecutionRequested,
 }: CommandBarProps) {
   const [mode, setMode] =
     useState<"manual" | "ai">("manual");
 
   const [loading, setLoading] =
     useState(false);
-
-  const [plan, setPlan] =
-    useState<GeneratedPlanType | null>(
-      null,
-    );
-
-  const [sourcePrompt, setSourcePrompt] =
-    useState("");
 
   const planner = useMemo(
     () => new OpenAIPlanner(),
@@ -56,7 +44,6 @@ export function CommandBar({
   async function handleGenerate(
     prompt: string,
   ) {
-    setSourcePrompt(prompt);
     setLoading(true);
 
     try {
@@ -66,35 +53,14 @@ export function CommandBar({
           prompt,
         );
 
-      setPlan(generated);
+      onExecutionRequested({
+        ...generated,
+        sourcePrompt: prompt,
+      });
     } finally {
       setLoading(false);
     }
   }
-
-function handleApply(
-  plan: GeneratedPlanType,
-) {
-  plan.steps.forEach((step) => {
-    onOperation(step.operation);
-  });
-
-  onWorkflowSaved?.(
-    createWorkflow({
-      name: sourcePrompt.slice(0, 80) || "Untitled workflow",
-      description: sourcePrompt,
-      operations: plan.steps.map(
-        (step) => step.operation,
-      ),
-      sourcePrompt,
-      datasetSignature:
-        datasetSignature ?? createDatasetSignature(dataset),
-    }),
-  );
-
-  setPlan(null);
-  setMode("manual");
-}
 
   return (
     <section className="rounded-xl border bg-card p-6">
@@ -155,14 +121,6 @@ function handleApply(
             loading={loading}
             onGenerate={handleGenerate}
           />
-
-          {plan && (
-            <PlanSession
-              dataset={dataset}
-              plan={plan}
-              onApply={handleApply}
-            />
-          )}
         </>
       )}
     </section>

@@ -10,7 +10,13 @@ import type { Workflow } from "./types";
 import { WorkflowCard } from "./workflow-card";
 import { WorkflowDetails } from "./workflow-details";
 
-export function WorkflowLibrary() {
+interface WorkflowLibraryProps {
+  onPreviewWorkflow: (workflow: Workflow) => void;
+}
+
+export function WorkflowLibrary({
+  onPreviewWorkflow,
+}: WorkflowLibraryProps) {
   const [workflows, setWorkflows] =
     useState<Workflow[]>([]);
   const [selectedId, setSelectedId] =
@@ -75,7 +81,12 @@ export function WorkflowLibrary() {
           </div>
 
           {selectedWorkflow ? (
-            <WorkflowDetails workflow={selectedWorkflow} />
+            <WorkflowDetails
+              workflow={selectedWorkflow}
+              onPreview={() =>
+                onPreviewWorkflow(selectedWorkflow)
+              }
+            />
           ) : (
             <div className="flex min-h-40 items-center justify-center rounded-xl border border-dashed p-5 text-center text-sm text-muted-foreground">
               Select a workflow to view its details.

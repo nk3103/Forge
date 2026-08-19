@@ -4,10 +4,12 @@ import type { Workflow } from "./types";
 
 interface WorkflowDetailsProps {
   workflow: Workflow;
+  onPreview: () => void;
 }
 
 export function WorkflowDetails({
   workflow,
+  onPreview,
 }: WorkflowDetailsProps) {
   return (
     <div className="rounded-xl border bg-muted/30 p-5">
@@ -69,6 +71,14 @@ export function WorkflowDetails({
           </p>
         </div>
       )}
+
+      <button
+        type="button"
+        onClick={onPreview}
+        className="mt-5 rounded-lg bg-primary px-3 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/80"
+      >
+        Preview Workflow
+      </button>
     </div>
   );
 }

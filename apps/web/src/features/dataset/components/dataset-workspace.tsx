@@ -15,9 +15,14 @@ import {
   type LearnedWorkflow,
 } from "@/features/knowledge/workflow-knowledge";
 
-import { saveWorkflow } from "@/features/workflow/workflow-repository";
+import {
+  recordWorkflowUsage,
+  saveWorkflow,
+} from "@/features/workflow/workflow-repository";
 import type { Workflow } from "@/features/workflow/types";
 import { createWorkflow } from "@/features/workflow/create-workflow";
+import { workflowToGeneratedPlan } from "@/features/workflow/workflow-to-plan";
+import { WorkflowLibrary } from "@/features/workflow/workflow-library";
 
 import { suggestWorkflow } from "@/features/knowledge/workflow-suggestions";
 import { WorkflowSuggestion } from "@/features/knowledge/workflow-suggestion";
@@ -31,6 +36,8 @@ import type { Dataset } from "../types";
 import { DataTable } from "./data-table";
 import { DatasetHeader } from "./dataset-header";
 import { DatasetUpload } from "./dataset-upload";
+import { PlanSession } from "@/features/planner/plan-session";
+import type { GeneratedPlan } from "@/features/planner/planner-types";
 
 export function DatasetWorkspace() {
   const [originalDataset, setOriginalDataset] =
@@ -45,6 +52,12 @@ export function DatasetWorkspace() {
   const [suggestedWorkflow, setSuggestedWorkflow] =
     useState<LearnedWorkflow | null>(null);
 
+  const [executionPlan, setExecutionPlan] =
+    useState<{
+      plan: GeneratedPlan;
+      workflowId?: string;
+    } | null>(null);
+
   const dataset = useMemo(() => {
     if (!originalDataset) {
       return null;
@@ -55,6 +68,13 @@ export function DatasetWorkspace() {
       operations,
     );
   }, [originalDataset, operations]);
+
+  const sourceDatasetSignature =
+    originalDataset
+      ? createDatasetSignature(originalDataset)
+      : dataset
+        ? createDatasetSignature(dataset)
+        : "";
 
   const handleOperation = useCallback(
     (operation: Operation) => {
@@ -92,10 +112,19 @@ export function DatasetWorkspace() {
     setWorkflowSaved(true);
   }, [originalDataset, operations]);
 
-  const handleWorkflowSaved = useCallback(
+  const handleExecutionRequested = useCallback(
+    (plan: GeneratedPlan) => {
+      setExecutionPlan({ plan });
+    },
+    [],
+  );
+
+  const handlePreviewWorkflow = useCallback(
     (workflow: Workflow) => {
-      saveWorkflow(workflow);
-      setWorkflowSaved(true);
+      setExecutionPlan({
+        workflowId: workflow.metadata.id,
+        plan: workflowToGeneratedPlan(workflow),
+      });
     },
     [],
   );
@@ -107,6 +136,8 @@ export function DatasetWorkspace() {
       setOperations([]);
 
       setWorkflowSaved(false);
+
+      setExecutionPlan(null);
 
       const workflow =
         suggestWorkflow(dataset);
@@ -143,9 +174,48 @@ const replayedOperations =
       setSuggestedWorkflow(null);
     }, []);
 
-  if (!dataset) {
-    return (
-      <section className="rounded-2xl border border-dashed border-border/60 p-12">
+  const handleApplySavedWorkflow = useCallback(
+    (plan: GeneratedPlan) => {
+      setOperations((current) => [
+        ...current,
+        ...plan.steps.map(
+          (step) => step.operation,
+        ),
+      ]);
+
+      if (executionPlan?.workflowId) {
+        recordWorkflowUsage(
+          executionPlan.workflowId,
+        );
+      } else if (plan.sourcePrompt) {
+        saveWorkflow(
+          createWorkflow({
+            name:
+              plan.sourcePrompt.slice(0, 80) ||
+              "Untitled workflow",
+            description: plan.sourcePrompt,
+            operations: plan.steps.map(
+              (step) => step.operation,
+            ),
+            sourcePrompt: plan.sourcePrompt,
+            datasetSignature:
+              sourceDatasetSignature,
+          }),
+        );
+      }
+
+      setExecutionPlan(null);
+    },
+    [
+      executionPlan,
+      sourceDatasetSignature,
+    ],
+  );
+
+  return (
+    <section className="space-y-6">
+      {!dataset ? (
+        <section className="rounded-2xl border border-dashed border-border/60 p-12">
         <div className="flex flex-col items-center gap-6">
           <DatasetUpload
             onDatasetLoaded={
@@ -159,62 +229,65 @@ const replayedOperations =
             transform and organize data.
           </p>
         </div>
-      </section>
-    );
-  }
+        </section>
+      ) : (
+        <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
+          <div className="flex items-start justify-between">
+            <DatasetHeader dataset={dataset} />
 
-  const sourceDatasetSignature =
-    originalDataset
-      ? createDatasetSignature(originalDataset)
-      : createDatasetSignature(dataset);
+            <DatasetUpload
+              compact
+              onDatasetLoaded={handleDatasetLoaded}
+            />
+          </div>
 
-  return (
-    <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
-     <div className="flex items-start justify-between">
-  <DatasetHeader dataset={dataset} />
+          <DataTable dataset={dataset} />
 
-  <DatasetUpload
-    compact
-    onDatasetLoaded={handleDatasetLoaded}
-  />
-</div>
+          {suggestedWorkflow && (
+            <WorkflowSuggestion
+              workflow={suggestedWorkflow}
+              onApply={handleApplyWorkflow}
+              onDismiss={handleDismissSuggestion}
+            />
+          )}
 
-      {suggestedWorkflow && (
-        <WorkflowSuggestion
-          workflow={suggestedWorkflow}
-          onApply={handleApplyWorkflow}
-          onDismiss={
-            handleDismissSuggestion
-          }
-        />
+          <WorkflowLibrary
+            onPreviewWorkflow={handlePreviewWorkflow}
+          />
+
+          <CommandBar
+            dataset={dataset}
+            onOperation={handleOperation}
+            onExecutionRequested={
+              handleExecutionRequested
+            }
+          />
+
+          {executionPlan && (
+            <PlanSession
+              dataset={dataset}
+              plan={executionPlan.plan}
+              onApply={handleApplySavedWorkflow}
+            />
+          )}
+
+          <WorkflowTimeline operations={operations} />
+
+          <div className="flex justify-end">
+            <Button
+              onClick={handleSaveWorkflow}
+              disabled={
+                operations.length === 0 ||
+                workflowSaved
+              }
+            >
+              {workflowSaved
+                ? "Workflow Saved"
+                : "Save Workflow"}
+            </Button>
+          </div>
+        </section>
       )}
-
-      <DataTable dataset={dataset} />
-
-      <WorkflowTimeline
-        operations={operations}
-      />
-
-      <div className="flex justify-end">
-        <Button
-          onClick={handleSaveWorkflow}
-          disabled={
-            operations.length === 0 ||
-            workflowSaved
-          }
-        >
-          {workflowSaved
-            ? "Workflow Saved"
-            : "Save Workflow"}
-        </Button>
-      </div>
-
-      <CommandBar
-        dataset={dataset}
-        datasetSignature={sourceDatasetSignature}
-        onOperation={handleOperation}
-        onWorkflowSaved={handleWorkflowSaved}
-      />
     </section>
   );
 }

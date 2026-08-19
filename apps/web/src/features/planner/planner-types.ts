@@ -8,4 +8,5 @@ export interface PlanStep {
 export interface GeneratedPlan {
   steps: PlanStep[];
   confidence: "high" | "medium" | "low";
+  sourcePrompt?: string;
 }

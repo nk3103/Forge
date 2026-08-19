@@ -5,6 +5,7 @@ import {
   loadWorkflow,
   loadWorkflows,
   removeWorkflow,
+  recordWorkflowUsage,
   saveWorkflow,
 } from "./workflow-repository";
 
@@ -77,5 +78,22 @@ describe("workflow repository", () => {
 
     expect(loadWorkflows()).toEqual([]);
     expect(loadWorkflow("workflow-1")).toBeNull();
+  });
+
+  it("increments usage after a successful apply", () => {
+    saveWorkflow(workflow);
+
+    const updated = recordWorkflowUsage("workflow-1");
+
+    expect(updated).toMatchObject({
+      ...workflow,
+      updatedAt: expect.any(Number),
+      usageCount: 1,
+    });
+    expect(updated?.updatedAt).toEqual(expect.any(Number));
+    expect(updated?.updatedAt).toBeGreaterThanOrEqual(
+      workflow.updatedAt,
+    );
+    expect(loadWorkflow("workflow-1")?.usageCount).toBe(1);
   });
 });
