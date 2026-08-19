@@ -73,7 +73,8 @@ export function DatasetWorkspace() {
         : dataset
           ? createDatasetSignature(dataset)
           : {
-              columns: [],
+            originalColumns: [],
+            normalizedColumns: [],
               columnCount: 0,
               columnTypes: {},
             },

@@ -1,7 +1,7 @@
 "use client";
 
 import type { WorkflowMatch } from "@/features/knowledge/workflow-matcher";
-import { WorkflowSuggestionCard } from "@/features/workflow/workflow-suggestion-card";
+import { SuggestedWorkflowCard } from "@/features/workflow/workflow-suggestion-card";
 
 interface SuggestedWorkflowsProps {
   match: WorkflowMatch | null;
@@ -14,7 +14,7 @@ export function SuggestedWorkflows({
 }: SuggestedWorkflowsProps) {
   if (match) {
     return (
-      <WorkflowSuggestionCard
+      <SuggestedWorkflowCard
         match={match}
         onPreview={onPreview}
       />

@@ -23,7 +23,8 @@ describe("createWorkflow", () => {
       operations: [operation],
       sourcePrompt: "Rename NAME to FULL_NAME",
       datasetSignature: {
-        columns: ["age", "name"],
+        originalColumns: ["AGE", "NAME"],
+        normalizedColumns: ["age", "name"],
         columnCount: 2,
         columnTypes: { age: "string", name: "string" },
       },
@@ -41,7 +42,8 @@ describe("createWorkflow", () => {
       updatedAt: 200,
       sourcePrompt: "Rename NAME to FULL_NAME",
       datasetSignature: {
-        columns: ["age", "name"],
+        originalColumns: ["AGE", "NAME"],
+        normalizedColumns: ["age", "name"],
         columnCount: 2,
         columnTypes: { age: "string", name: "string" },
       },
@@ -56,7 +58,8 @@ describe("createWorkflow", () => {
       operations: [],
       sourcePrompt: "",
       datasetSignature: {
-        columns: [],
+        originalColumns: [],
+        normalizedColumns: [],
         columnCount: 0,
         columnTypes: {},
       },

@@ -7,22 +7,34 @@ import type {
 export function createDatasetSignature(
   dataset: Dataset,
 ): DatasetSignature {
-  const columns = dataset.columns
-    .map((column) => column.trim().toLowerCase())
+  const originalColumns = [...dataset.columns];
+  const normalizedColumns = dataset.columns
+    .map(normalizeColumnName)
     .sort();
 
   const columnTypes = Object.fromEntries(
     dataset.columns.map((column) => [
-      column.trim().toLowerCase(),
+      normalizeColumnName(column),
       inferColumnType(dataset, column),
     ]),
   );
 
   return {
-    columns,
-    columnCount: columns.length,
+    originalColumns,
+    normalizedColumns,
+    columnCount: originalColumns.length,
     columnTypes,
   };
+}
+
+export function normalizeColumnName(
+  column: string,
+): string {
+  return column
+    .trim()
+    .toLowerCase()
+    .replace(/[_-]/g, " ")
+    .replace(/\s+/g, " ");
 }
 
 function inferColumnType(
@@ -57,5 +69,5 @@ function inferColumnType(
 export function datasetSignatureKey(
   signature: DatasetSignature,
 ): string {
-  return signature.columns.join("|");
+  return signature.normalizedColumns.join("|");
 }

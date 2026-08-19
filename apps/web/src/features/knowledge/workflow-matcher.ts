@@ -26,8 +26,8 @@ export function scoreWorkflow(
   current: DatasetSignature,
   saved: DatasetSignature,
 ): number {
-  const currentColumns = new Set(current.columns);
-  const savedColumns = new Set(saved.columns);
+  const currentColumns = new Set(current.normalizedColumns);
+  const savedColumns = new Set(saved.normalizedColumns);
   const overlap = Array.from(currentColumns).filter((column) =>
     savedColumns.has(column),
   ).length;

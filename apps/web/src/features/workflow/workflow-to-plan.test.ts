@@ -26,7 +26,8 @@ describe("workflowToGeneratedPlan", () => {
       updatedAt: 100,
       sourcePrompt: "Rename NAME",
       datasetSignature: {
-        columns: ["name"],
+        originalColumns: ["Name"],
+        normalizedColumns: ["name"],
         columnCount: 1,
         columnTypes: { name: "string" },
       },

@@ -3,15 +3,15 @@
 import { Button } from "@/components/ui/button";
 import type { WorkflowMatch } from "@/features/knowledge/workflow-matcher";
 
-interface WorkflowSuggestionCardProps {
+interface SuggestedWorkflowCardProps {
   match: WorkflowMatch;
   onPreview: () => void;
 }
 
-export function WorkflowSuggestionCard({
+export function SuggestedWorkflowCard({
   match,
   onPreview,
-}: WorkflowSuggestionCardProps) {
+}: SuggestedWorkflowCardProps) {
   return (
     <section className="rounded-xl border border-primary/20 bg-primary/5 p-5">
       <div className="flex items-start justify-between gap-4">

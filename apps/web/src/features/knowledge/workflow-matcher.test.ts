@@ -22,7 +22,8 @@ function workflow(id: string, columns: string[]): Workflow {
     updatedAt: 1,
     sourcePrompt: "",
     datasetSignature: {
-      columns,
+      originalColumns: columns,
+      normalizedColumns: columns,
       columnCount: columns.length,
       columnTypes: {
         name: "string",
@@ -39,7 +40,8 @@ describe("workflow matcher", () => {
     expect(
       scoreWorkflow(
         {
-          columns: ["age", "name"],
+          originalColumns: ["AGE", "NAME"],
+          normalizedColumns: ["age", "name"],
           columnCount: 2,
           columnTypes: { age: "number", name: "string" },
         },

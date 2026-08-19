@@ -8,7 +8,8 @@ export type DatasetColumnType =
   | "unknown";
 
 export interface DatasetSignature {
-  columns: string[];
+  originalColumns: string[];
+  normalizedColumns: string[];
   columnCount: number;
   columnTypes: Record<string, DatasetColumnType>;
 }
