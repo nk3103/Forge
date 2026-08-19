@@ -1,4 +1,5 @@
 import { DatasetWorkspace } from "@/features/dataset/components/dataset-workspace";
+import { WorkflowLibrary } from "@/features/workflow/workflow-library";
 
 export default function HomePage() {
   return (
@@ -27,6 +28,7 @@ export default function HomePage() {
           </section>
 
           <DatasetWorkspace />
+          <WorkflowLibrary />
         </div>
       </div>
     </main>

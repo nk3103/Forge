@@ -15,6 +15,10 @@ import {
   type LearnedWorkflow,
 } from "@/features/knowledge/workflow-knowledge";
 
+import { saveWorkflow } from "@/features/workflow/workflow-repository";
+import type { Workflow } from "@/features/workflow/types";
+import { createWorkflow } from "@/features/workflow/create-workflow";
+
 import { suggestWorkflow } from "@/features/knowledge/workflow-suggestions";
 import { WorkflowSuggestion } from "@/features/knowledge/workflow-suggestion";
 
@@ -67,6 +71,17 @@ export function DatasetWorkspace() {
   const handleSaveWorkflow = useCallback(() => {
     if (!originalDataset) return;
 
+    saveWorkflow(
+      createWorkflow({
+        name: originalDataset.name,
+        description: "Saved workflow",
+        operations: [...operations],
+        sourcePrompt: "",
+        datasetSignature:
+          createDatasetSignature(originalDataset),
+      }),
+    );
+
     rememberWorkflow({
       id: crypto.randomUUID(),
       datasetSignature:
@@ -76,6 +91,14 @@ export function DatasetWorkspace() {
 
     setWorkflowSaved(true);
   }, [originalDataset, operations]);
+
+  const handleWorkflowSaved = useCallback(
+    (workflow: Workflow) => {
+      saveWorkflow(workflow);
+      setWorkflowSaved(true);
+    },
+    [],
+  );
 
   const handleDatasetLoaded = useCallback(
     (dataset: Dataset) => {
@@ -140,6 +163,11 @@ const replayedOperations =
     );
   }
 
+  const sourceDatasetSignature =
+    originalDataset
+      ? createDatasetSignature(originalDataset)
+      : createDatasetSignature(dataset);
+
   return (
     <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
      <div className="flex items-start justify-between">
@@ -183,7 +211,9 @@ const replayedOperations =
 
       <CommandBar
         dataset={dataset}
+        datasetSignature={sourceDatasetSignature}
         onOperation={handleOperation}
+        onWorkflowSaved={handleWorkflowSaved}
       />
     </section>
   );

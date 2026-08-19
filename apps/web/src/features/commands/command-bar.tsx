@@ -6,6 +6,9 @@ import { cn } from "@/lib/utils";
 
 import type { Dataset } from "@/features/dataset/types";
 import type { Operation } from "@/features/operations/operation-types";
+import { createDatasetSignature } from "@/features/knowledge/dataset-signature";
+import { createWorkflow } from "@/features/workflow/create-workflow";
+import type { Workflow } from "@/features/workflow/types";
 
 import { DeleteColumnCommand } from "./delete-column-command";
 import { RenameColumnCommand } from "./rename-column-command";
@@ -20,12 +23,16 @@ import type {
 
 interface CommandBarProps {
   dataset: Dataset;
+  datasetSignature?: string;
   onOperation: (operation: Operation) => void;
+  onWorkflowSaved?: (workflow: Workflow) => void;
 }
 
 export function CommandBar({
   dataset,
+  datasetSignature,
   onOperation,
+  onWorkflowSaved,
 }: CommandBarProps) {
   const [mode, setMode] =
     useState<"manual" | "ai">("manual");
@@ -38,6 +45,9 @@ export function CommandBar({
       null,
     );
 
+  const [sourcePrompt, setSourcePrompt] =
+    useState("");
+
   const planner = useMemo(
     () => new OpenAIPlanner(),
     [],
@@ -46,6 +56,7 @@ export function CommandBar({
   async function handleGenerate(
     prompt: string,
   ) {
+    setSourcePrompt(prompt);
     setLoading(true);
 
     try {
@@ -68,6 +79,19 @@ function handleApply(
     onOperation(step.operation);
   });
 
+  onWorkflowSaved?.(
+    createWorkflow({
+      name: sourcePrompt.slice(0, 80) || "Untitled workflow",
+      description: sourcePrompt,
+      operations: plan.steps.map(
+        (step) => step.operation,
+      ),
+      sourcePrompt,
+      datasetSignature:
+        datasetSignature ?? createDatasetSignature(dataset),
+    }),
+  );
+
   setPlan(null);
   setMode("manual");
 }
@@ -80,7 +104,7 @@ function handleApply(
         </h3>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Show Forge how you'd like this dataset
+          Show Forge how you&apos;d like this dataset
           to be transformed.
         </p>
       </div>
