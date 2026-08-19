@@ -74,6 +74,138 @@ const UppercaseSchema = z.object({
     .describe("Why uppercasing this column is required."),
 });
 
+const LowercaseSchema = z.object({
+  type: z
+    .literal("lowercase")
+    .describe("Convert every string value in a column to lowercase."),
+
+  payload: z.object({
+    column: z
+      .string()
+      .describe("Column whose string values should be lowercased."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why lowercasing this column is required."),
+});
+
+const TitleCaseSchema = z.object({
+  type: z
+    .literal("title_case")
+    .describe("Convert every word in a column to title case."),
+
+  payload: z.object({
+    column: z
+      .string()
+      .describe("Column whose string values should be title cased."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why title casing this column is required."),
+});
+
+const FillMissingValuesSchema = z.object({
+  type: z
+    .literal("fill_missing_values")
+    .describe(
+      "Replace null, undefined, and empty string values in a column with a supplied value.",
+    ),
+
+  payload: z.object({
+    column: z
+      .string()
+      .describe("Column whose missing values should be filled."),
+    value: z
+      .string()
+      .describe("Value to use for missing entries."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why filling missing values is required."),
+});
+
+const RemoveEmptyRowsSchema = z.object({
+  type: z
+    .literal("remove_empty_rows")
+    .describe(
+      "Remove rows where every value is null, undefined, or an empty string.",
+    ),
+
+  payload: z.object({}),
+
+  explanation: z
+    .string()
+    .describe("Why removing empty rows is required."),
+});
+
+const ConcatenateColumnsSchema = z.object({
+  type: z
+    .literal("concatenate_columns")
+    .describe(
+      "Join selected columns into a new destination column using a custom separator.",
+    ),
+
+  payload: z.object({
+    columns: z
+      .array(z.string())
+      .min(1)
+      .describe("Columns to join, in order."),
+    separator: z.string().describe("Text placed between joined values."),
+    destination: z
+      .string()
+      .describe("Column to create or overwrite."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why concatenating these columns is required."),
+});
+
+const SplitColumnSchema = z.object({
+  type: z
+    .literal("split_column")
+    .describe(
+      "Split a column into multiple destination columns using a separator.",
+    ),
+
+  payload: z.object({
+    column: z.string().describe("Column to split."),
+    separator: z.string().describe("Text separating the parts."),
+    destinations: z
+      .array(z.string())
+      .min(1)
+      .describe("Destination columns, in order."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why splitting this column is required."),
+});
+
+const RoundNumbersSchema = z.object({
+  type: z
+    .literal("round_numbers")
+    .describe(
+      "Round numeric values in a column to a specified number of decimal places.",
+    ),
+
+  payload: z.object({
+    column: z.string().describe("Column containing numeric values."),
+    decimals: z
+      .number()
+      .int()
+      .min(0)
+      .describe("Number of decimal places to keep."),
+  }),
+
+  explanation: z
+    .string()
+    .describe("Why rounding this column is required."),
+});
+
 const DeleteColumnSchema = z.object({
   type: z
     .literal("delete_column")
@@ -107,6 +239,13 @@ export const PlannerSchema = z.object({
       TrimWhitespaceSchema,
       ReplaceTextSchema,
       UppercaseSchema,
+      LowercaseSchema,
+      TitleCaseSchema,
+      FillMissingValuesSchema,
+      RemoveEmptyRowsSchema,
+      ConcatenateColumnsSchema,
+      SplitColumnSchema,
+      RoundNumbersSchema,
       DeleteColumnSchema,
     ]),
   ),

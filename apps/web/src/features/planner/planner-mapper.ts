@@ -54,6 +54,76 @@ export function mapPlannerResponse(
             },
           };
 
+        case "lowercase":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "title_case":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "fill_missing_values":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "remove_empty_rows":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "concatenate_columns":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "split_column":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
+        case "round_numbers":
+          return {
+            explanation: step.explanation,
+            operation: {
+              ...metadata,
+              type: step.type,
+              payload: step.payload,
+            },
+          };
+
         case "delete_column":
           return {
             explanation: step.explanation,

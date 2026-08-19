@@ -1,15 +1,15 @@
 import type { Dataset } from "@/features/dataset/types";
 
-import type { UppercaseOperation } from "../operation-types";
+import type { LowercaseOperation } from "../operation-types";
 import { applyCaseTransform } from "./case-transform";
 
-export function applyUppercase(
+export function applyLowercase(
   dataset: Dataset,
-  operation: UppercaseOperation,
+  operation: LowercaseOperation,
 ): Dataset {
   return applyCaseTransform(
     dataset,
     operation.payload.column,
-    (value) => value.toUpperCase(),
+    (value) => value.toLowerCase(),
   );
 }
