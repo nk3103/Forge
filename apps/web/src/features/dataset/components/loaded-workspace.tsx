@@ -10,7 +10,6 @@ import { WorkflowLibrary } from "@/features/workflow/workflow-library";
 import type { Workflow } from "@/features/workflow/types";
 import type { LearnedWorkflow } from "@/features/knowledge/workflow-knowledge";
 import type { WorkflowMatch } from "@/features/knowledge/workflow-matcher";
-import type { Operation } from "@/features/operations/operation-types";
 
 import type { Dataset } from "../types";
 
@@ -34,7 +33,6 @@ interface LoadedWorkspaceProps {
   onApplySuggestedWorkflow: () => void;
   onDismissSuggestion: () => void;
   onPreviewWorkflow: (workflow: Workflow) => void;
-  onOperation: (operation: Operation) => void;
   onExecutionRequested: (plan: GeneratedPlan) => void;
   onApplyExecution: (plan: GeneratedPlan) => void;
   onSaveWorkflow: () => void;
@@ -51,7 +49,6 @@ export function LoadedWorkspace({
   onApplySuggestedWorkflow,
   onDismissSuggestion,
   onPreviewWorkflow,
-  onOperation,
   onExecutionRequested,
   onApplyExecution,
   onSaveWorkflow,
@@ -92,7 +89,6 @@ export function LoadedWorkspace({
 
       <CommandBar
         dataset={dataset}
-        onOperation={onOperation}
         onExecutionRequested={onExecutionRequested}
       />
 

@@ -2,13 +2,7 @@
 
 import { useMemo, useState } from "react";
 
-import { cn } from "@/lib/utils";
-
 import type { Dataset } from "@/features/dataset/types";
-import type { Operation } from "@/features/operations/operation-types";
-
-import { DeleteColumnCommand } from "./delete-column-command";
-import { RenameColumnCommand } from "./rename-column-command";
 
 import { PlannerView } from "@/features/planner/planner-view";
 import { OpenAIPlanner } from "@/features/planner/openai-planner";
@@ -19,7 +13,6 @@ import type {
 
 interface CommandBarProps {
   dataset: Dataset;
-  onOperation: (operation: Operation) => void;
   onExecutionRequested: (
     plan: GeneratedPlanType,
   ) => void;
@@ -27,12 +20,8 @@ interface CommandBarProps {
 
 export function CommandBar({
   dataset,
-  onOperation,
   onExecutionRequested,
 }: CommandBarProps) {
-  const [mode, setMode] =
-    useState<"manual" | "ai">("manual");
-
   const [loading, setLoading] =
     useState(false);
 
@@ -66,63 +55,19 @@ export function CommandBar({
     <section className="rounded-xl border bg-card p-6">
       <div className="mb-6">
         <h3 className="text-lg font-semibold">
-          Teach Forge
+          Teach Forge with natural language
         </h3>
 
         <p className="mt-1 text-sm text-muted-foreground">
-          Show Forge how you&apos;d like this dataset
-          to be transformed.
+          Describe the transformation you want, and Forge
+          will prepare an editable execution plan.
         </p>
       </div>
 
-      <div className="mb-6 inline-flex rounded-lg border bg-muted p-1">
-        <button
-          type="button"
-          onClick={() => setMode("manual")}
-          className={cn(
-            "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-            mode === "manual"
-              ? "bg-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          Manual
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setMode("ai")}
-          className={cn(
-            "rounded-md px-4 py-2 text-sm font-medium transition-colors",
-            mode === "ai"
-              ? "bg-background shadow-sm"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          AI
-        </button>
-      </div>
-
-      {mode === "manual" ? (
-        <div className="space-y-8">
-          <RenameColumnCommand
-            columns={dataset.columns}
-            onSubmit={onOperation}
-          />
-
-          <DeleteColumnCommand
-            columns={dataset.columns}
-            onSubmit={onOperation}
-          />
-        </div>
-      ) : (
-        <>
-          <PlannerView
-            loading={loading}
-            onGenerate={handleGenerate}
-          />
-        </>
-      )}
+      <PlannerView
+        loading={loading}
+        onGenerate={handleGenerate}
+      />
     </section>
   );
 }

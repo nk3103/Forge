@@ -81,18 +81,6 @@ export function DatasetWorkspace() {
     [originalDataset, dataset],
   );
 
-  const handleOperation = useCallback(
-    (operation: Operation) => {
-      setOperations((current) => [
-        ...current,
-        operation,
-      ]);
-
-      setWorkflowSaved(false);
-    },
-    [],
-  );
-
   const handleSaveWorkflow = useCallback(() => {
     if (!originalDataset) return;
 
@@ -246,7 +234,6 @@ const replayedOperations =
       onApplySuggestedWorkflow={handleApplyWorkflow}
       onDismissSuggestion={handleDismissSuggestion}
       onPreviewWorkflow={handlePreviewWorkflow}
-      onOperation={handleOperation}
       onExecutionRequested={handleExecutionRequested}
       onApplyExecution={handleApplySavedWorkflow}
       onSaveWorkflow={handleSaveWorkflow}
