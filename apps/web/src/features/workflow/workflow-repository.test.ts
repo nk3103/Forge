@@ -60,6 +60,45 @@ describe("workflow repository", () => {
     expect(loadWorkflow("workflow-1")).toEqual(workflow);
   });
 
+  it("loads workflows by most recent usage without changing stored order", () => {
+    const legacyWorkflow = {
+      metadata: { ...workflow.metadata, id: "workflow-legacy" },
+      operations: workflow.operations,
+      createdAt: 400,
+      sourcePrompt: workflow.sourcePrompt,
+      datasetSignature: workflow.datasetSignature,
+      usageCount: workflow.usageCount,
+      version: workflow.version,
+    };
+    const storedWorkflows = [
+      {
+        ...workflow,
+        metadata: { ...workflow.metadata, id: "workflow-old" },
+        updatedAt: 200,
+      },
+      legacyWorkflow,
+      {
+        ...workflow,
+        metadata: { ...workflow.metadata, id: "workflow-recent" },
+        updatedAt: 500,
+      },
+    ];
+
+    window.localStorage.setItem(
+      "forge.workflows",
+      JSON.stringify(storedWorkflows),
+    );
+
+    expect(loadWorkflows().map((item) => item.metadata.id)).toEqual([
+      "workflow-recent",
+      "workflow-legacy",
+      "workflow-old",
+    ]);
+    expect(
+      window.localStorage.getItem("forge.workflows"),
+    ).toBe(JSON.stringify(storedWorkflows));
+  });
+
   it("replaces a workflow with the same id", () => {
     saveWorkflow(workflow);
     saveWorkflow({

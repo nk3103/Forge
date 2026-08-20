@@ -87,11 +87,21 @@ export function loadWorkflows(): Workflow[] {
   try {
     const parsed: unknown = JSON.parse(serialized);
 
-    return Array.isArray(parsed)
-      ? (parsed as Array<Workflow & { datasetSignature: DatasetSignature | string }>).map(
-          normalizeWorkflow,
-        )
-      : [];
+    if (!Array.isArray(parsed)) return [];
+
+    return (
+      parsed as Array<
+        Workflow & {
+          datasetSignature: DatasetSignature | string;
+        }
+      >
+    )
+      .map(normalizeWorkflow)
+      .toSorted(
+        (first, second) =>
+          (second.updatedAt ?? second.createdAt) -
+          (first.updatedAt ?? first.createdAt),
+      );
   } catch {
     return [];
   }
