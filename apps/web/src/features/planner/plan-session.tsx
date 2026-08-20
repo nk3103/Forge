@@ -82,6 +82,17 @@ export function PlanSession({
     onApply(editablePlan);
   }
 
+  function handleRemoveStep(operationId?: string) {
+    if (!operationId) return;
+
+    setEditablePlan((currentPlan) => ({
+      ...currentPlan,
+      steps: currentPlan.steps.filter(
+        (step) => step.operation.id !== operationId,
+      ),
+    }));
+  }
+
   return (
     <div className="space-y-6">
       <GeneratedPlan
@@ -89,7 +100,10 @@ export function PlanSession({
         onPlanChange={setEditablePlan}
       />
 
-      <PlanValidation issues={issues} />
+      <PlanValidation
+        issues={issues}
+        onRemoveStep={handleRemoveStep}
+      />
 
       <ChangeSummary diff={diff} />
 

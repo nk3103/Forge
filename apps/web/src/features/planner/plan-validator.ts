@@ -3,6 +3,7 @@ import type { Dataset } from "@/features/dataset/types";
 import type { GeneratedPlan } from "./planner-types";
 
 export interface ValidationIssue {
+  operationId?: string;
   severity: "error" | "warning";
   message: string;
 }
@@ -16,6 +17,8 @@ export function validatePlan(
   const columns = new Set(dataset.columns);
 
   for (const step of plan.steps) {
+    const issueStartIndex = issues.length;
+
     switch (step.operation.type) {
       case "rename_column": {
         const { from, to } = step.operation.payload;
@@ -204,6 +207,14 @@ export function validatePlan(
 
       default:
         break;
+    }
+
+    for (
+      let index = issueStartIndex;
+      index < issues.length;
+      index += 1
+    ) {
+      issues[index].operationId = step.operation.id;
     }
   }
 

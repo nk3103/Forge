@@ -1,13 +1,17 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+
 import type { ValidationIssue } from "./plan-validator";
 
 interface PlanValidationProps {
   issues: ValidationIssue[];
+  onRemoveStep: (operationId?: string) => void;
 }
 
 export function PlanValidation({
   issues,
+  onRemoveStep,
 }: PlanValidationProps) {
   if (issues.length === 0) {
     return (
@@ -28,12 +32,25 @@ export function PlanValidation({
 
       <ul className="mt-2 space-y-2 text-sm">
         {issues.map((issue, index) => (
-          <li key={index}>
-            <strong>
-              {issue.severity.toUpperCase()}
-            </strong>
-            {" — "}
-            {issue.message}
+          <li
+            key={`${issue.operationId ?? "issue"}-${index}`}
+            className="flex items-center justify-between gap-4"
+          >
+            <span>
+              <strong>
+                {issue.severity.toUpperCase()}
+              </strong>
+              {" — "}
+              {issue.message}
+            </span>
+
+            <Button
+              variant="destructive"
+              size="xs"
+              onClick={() => onRemoveStep(issue.operationId)}
+            >
+              Remove Step
+            </Button>
           </li>
         ))}
       </ul>
