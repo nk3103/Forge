@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { Button } from "@/components/ui/button";
 
 import { CommandBar } from "@/features/commands/command-bar";
@@ -58,6 +60,17 @@ export function LoadedWorkspace({
   onApplyExecution,
   onSaveWorkflow,
 }: LoadedWorkspaceProps) {
+  const planSessionRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!executionPlan || plannerLoading) return;
+
+    planSessionRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  }, [executionPlan, plannerLoading]);
+
   return (
     <section className="space-y-6 rounded-2xl border border-border/60 bg-background p-6 shadow-sm">
       <div className="flex items-start justify-between">
@@ -101,11 +114,13 @@ export function LoadedWorkspace({
       {plannerLoading ? (
         <PlannerLoading />
       ) : executionPlan ? (
-        <PlanSession
-          dataset={dataset}
-          plan={executionPlan.plan}
-          onApply={onApplyExecution}
-        />
+        <div ref={planSessionRef}>
+          <PlanSession
+            dataset={dataset}
+            plan={executionPlan.plan}
+            onApply={onApplyExecution}
+          />
+        </div>
       ) : null}
 
       <WorkflowTimeline operations={operations} />
