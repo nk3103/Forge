@@ -16,11 +16,13 @@ interface CommandBarProps {
   onExecutionRequested: (
     plan: GeneratedPlanType,
   ) => void;
+  onPlannerLoadingChange: (loading: boolean) => void;
 }
 
 export function CommandBar({
   dataset,
   onExecutionRequested,
+  onPlannerLoadingChange,
 }: CommandBarProps) {
   const [loading, setLoading] =
     useState(false);
@@ -34,6 +36,7 @@ export function CommandBar({
     prompt: string,
   ) {
     setLoading(true);
+    onPlannerLoadingChange(true);
 
     try {
       const generated =
@@ -48,6 +51,7 @@ export function CommandBar({
       });
     } finally {
       setLoading(false);
+      onPlannerLoadingChange(false);
     }
   }
 

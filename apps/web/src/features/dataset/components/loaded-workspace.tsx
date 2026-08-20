@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { CommandBar } from "@/features/commands/command-bar";
 import { WorkflowSuggestion } from "@/features/knowledge/workflow-suggestion";
 import { PlanSession } from "@/features/planner/plan-session";
+import { PlannerLoading } from "@/features/planner/planner-loading";
 import type { GeneratedPlan } from "@/features/planner/planner-types";
 import { WorkflowLibrary } from "@/features/workflow/workflow-library";
 import type { Workflow } from "@/features/workflow/types";
@@ -27,6 +28,7 @@ interface LoadedWorkspaceProps {
     plan: GeneratedPlan;
     workflowId?: string;
   } | null;
+  plannerLoading: boolean;
   operations: Operation[];
   workflowSaved: boolean;
   onDatasetLoaded: (dataset: Dataset) => void;
@@ -34,6 +36,7 @@ interface LoadedWorkspaceProps {
   onDismissSuggestion: () => void;
   onPreviewWorkflow: (workflow: Workflow) => void;
   onExecutionRequested: (plan: GeneratedPlan) => void;
+  onPlannerLoadingChange: (loading: boolean) => void;
   onApplyExecution: (plan: GeneratedPlan) => void;
   onSaveWorkflow: () => void;
 }
@@ -43,6 +46,7 @@ export function LoadedWorkspace({
   suggestedWorkflow,
   matchedWorkflow,
   executionPlan,
+  plannerLoading,
   operations,
   workflowSaved,
   onDatasetLoaded,
@@ -50,6 +54,7 @@ export function LoadedWorkspace({
   onDismissSuggestion,
   onPreviewWorkflow,
   onExecutionRequested,
+  onPlannerLoadingChange,
   onApplyExecution,
   onSaveWorkflow,
 }: LoadedWorkspaceProps) {
@@ -90,15 +95,18 @@ export function LoadedWorkspace({
       <CommandBar
         dataset={dataset}
         onExecutionRequested={onExecutionRequested}
+        onPlannerLoadingChange={onPlannerLoadingChange}
       />
 
-      {executionPlan && (
+      {plannerLoading ? (
+        <PlannerLoading />
+      ) : executionPlan ? (
         <PlanSession
           dataset={dataset}
           plan={executionPlan.plan}
           onApply={onApplyExecution}
         />
-      )}
+      ) : null}
 
       <WorkflowTimeline operations={operations} />
 

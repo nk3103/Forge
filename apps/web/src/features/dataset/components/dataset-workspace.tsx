@@ -55,6 +55,9 @@ export function DatasetWorkspace() {
       workflowId?: string;
     } | null>(null);
 
+  const [plannerLoading, setPlannerLoading] =
+    useState(false);
+
   const dataset = useMemo(() => {
     if (!originalDataset) {
       return null;
@@ -133,6 +136,8 @@ export function DatasetWorkspace() {
       setWorkflowSaved(false);
 
       setExecutionPlan(null);
+
+      setPlannerLoading(false);
 
       setMatchedWorkflow(
         findBestWorkflowMatch(
@@ -228,6 +233,7 @@ const replayedOperations =
       suggestedWorkflow={suggestedWorkflow}
       matchedWorkflow={matchedWorkflow}
       executionPlan={executionPlan}
+      plannerLoading={plannerLoading}
       operations={operations}
       workflowSaved={workflowSaved}
       onDatasetLoaded={handleDatasetLoaded}
@@ -235,6 +241,7 @@ const replayedOperations =
       onDismissSuggestion={handleDismissSuggestion}
       onPreviewWorkflow={handlePreviewWorkflow}
       onExecutionRequested={handleExecutionRequested}
+      onPlannerLoadingChange={setPlannerLoading}
       onApplyExecution={handleApplySavedWorkflow}
       onSaveWorkflow={handleSaveWorkflow}
     />
