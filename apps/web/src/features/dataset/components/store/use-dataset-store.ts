@@ -1,11 +1,12 @@
-interface ForgeState {
-    dataset?: DatasetState
+import type { Operation } from "@/features/operations/operation-types";
 
-    operations: Operation[]
+import type { Dataset } from "../../types";
 
-    setDataset()
+export interface ForgeState {
+  dataset?: Dataset;
+  operations: Operation[];
 
-    applyOperation()
-
-    reset()
+  setDataset: (dataset: Dataset) => void;
+  applyOperation: (operation: Operation) => void;
+  reset: () => void;
 }

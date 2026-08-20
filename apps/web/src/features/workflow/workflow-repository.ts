@@ -25,7 +25,8 @@ function normalizeWorkflow(
   return {
     ...workflow,
     datasetSignature: {
-      columns,
+      originalColumns: columns,
+      normalizedColumns: columns,
       columnCount: columns.length,
       columnTypes: Object.fromEntries(
         columns.map((column) => [column, "unknown"]),

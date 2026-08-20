@@ -21,6 +21,7 @@ import { DatasetHeader } from "./dataset-header";
 import { DatasetUpload } from "./dataset-upload";
 import { SuggestedWorkflows } from "./suggested-workflows";
 import { WorkflowTimeline } from "@/features/operations/workflow-timeline";
+import type { Operation } from "@/features/operations/operation-types";
 
 interface LoadedWorkspaceProps {
   dataset: Dataset;
